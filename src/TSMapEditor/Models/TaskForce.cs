@@ -192,7 +192,7 @@ namespace TSMapEditor.Models
             section.SetIntValue(nameof(Group), Group);
         }
 
-        public static TaskForce ParseTaskForce(Rules rules, IniSection taskforceSection)
+        public static TaskForce ParseTaskForce(Rules rules, IniSection taskforceSection, Action<string> errorLogger)
         {
             if (taskforceSection == null)
                 return null;
@@ -212,7 +212,10 @@ namespace TSMapEditor.Models
 
                 var entry = TaskForceTechnoEntry.CreateEntry(rules, value);
                 if (entry == null)
+                {
+                    errorLogger(Translate(taskForce, "ParseTaskForce.FailedToCreateTechnoEntry", string.Format("Unable to create techno entry \"{0}\" for TaskForce \"{1}\" ({2})!", value, taskForce.Name, taskForce.ININame)));
                     break;
+                }
 
                 taskForce.TechnoTypes[i] = entry;
             }

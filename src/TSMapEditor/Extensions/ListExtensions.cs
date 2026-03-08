@@ -18,7 +18,7 @@ namespace TSMapEditor.Extensions
                 if (string.IsNullOrWhiteSpace(kvp.Value))
                     continue;
 
-                var taskForce = TaskForce.ParseTaskForce(rules, iniFile.GetSection(kvp.Value));
+                var taskForce = TaskForce.ParseTaskForce(rules, iniFile.GetSection(kvp.Value), errorLogger);
                 if (taskForce == null)
                 {
                     errorLogger(string.Format(Translate("ListExtensions.TaskForceParseError", 
