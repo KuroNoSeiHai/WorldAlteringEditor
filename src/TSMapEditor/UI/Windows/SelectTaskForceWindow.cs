@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Rampastring.XNAUI;
 using Rampastring.XNAUI.XNAControls;
 using TSMapEditor.Models;
@@ -17,10 +19,15 @@ namespace TSMapEditor.UI.Windows
 
         private readonly Map map;
 
+        private XNACheckBox chkIncludeGlobalTaskForces;
+
         public override void Initialize()
         {
             Name = nameof(SelectTaskForceWindow);
             base.Initialize();
+
+            chkIncludeGlobalTaskForces = FindChild<XNACheckBox>(nameof(chkIncludeGlobalTaskForces));
+            chkIncludeGlobalTaskForces.CheckedChanged += (_, _) => ListObjects();
         }
 
         protected override void LbObjectList_SelectedIndexChanged(object sender, EventArgs e)
@@ -38,9 +45,14 @@ namespace TSMapEditor.UI.Windows
         {
             lbObjectList.Clear();
 
-            foreach (TaskForce taskForce in map.TaskForces)
+            IEnumerable<TaskForce> list = map.TaskForces;
+            if (chkIncludeGlobalTaskForces.Checked)
+                list = map.TaskForces.UnionBy(map.Rules.TaskForces, tf => tf.ININame);
+
+            foreach (TaskForce taskForce in list)
             {
                 lbObjectList.AddItem(new XNAListBoxItem() { Text = $"{taskForce.Name} ({taskForce.ININame})", Tag = taskForce });
+
                 if (taskForce == SelectedObject)
                     lbObjectList.SelectedIndex = lbObjectList.Items.Count - 1;
             }

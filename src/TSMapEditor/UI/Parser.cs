@@ -398,6 +398,17 @@ namespace TSMapEditor.UI
                 case "horizontalCenterOnParent":
                     parsingControl.CenterOnParentHorizontally();
                     return parsingControl.X;
+                case "isVisible":
+                    return GetControl(parameters[0]).Visible ? 1 : 0;
+                case "ifElse":
+                    if (parameters.Count != 3)
+                        throw new INIConfigException($"Incorrect number of parameters for function {functionName} in expression {Input}");
+
+                    bool selector = GetExprValueWithContextSave(parameters[0], parsingControl) > 0;
+                    if (selector)
+                        return GetExprValueWithContextSave(parameters[1], parsingControl);
+
+                    return GetExprValueWithContextSave(parameters[2], parsingControl);
 
                 default:
                     throw new INIConfigException("Unknown function " + functionName + " in expression " + Input);
