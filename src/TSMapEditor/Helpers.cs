@@ -384,23 +384,25 @@ namespace TSMapEditor
 
         public static void FindDefaultSideForNewHouseType(HouseType houseType, Rules rules)
         {
+            // Cut numbers from the end of the housetype's name (so, for example, GDI2 becomes GDI)
+            string houseTypeIniName = houseType.ININame;
+            while (houseTypeIniName.Length > 0 && char.IsDigit(houseTypeIniName[^1]))
+                houseTypeIniName = houseTypeIniName[..^1];
+
+            if (string.IsNullOrWhiteSpace(houseTypeIniName))
+            {
+                houseType.Side = rules.Sides[0];
+                return;
+            }
+
             for (int sideIndex = 0; sideIndex < rules.Sides.Count; sideIndex++)
             {
                 string side = rules.Sides[sideIndex];
 
-                if (houseType.ININame.StartsWith(side))
+                if (side.StartsWith(houseTypeIniName))
                 {
                     houseType.Side = side;
                     break;
-                }
-
-                if (side.EndsWith("Side") && side.Length > 4)
-                {
-                    if (houseType.ININame.StartsWith(side[..4]))
-                    {
-                        houseType.Side = side;
-                        break;
-                    }
                 }
             }
 
