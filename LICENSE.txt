@@ -1,5 +1,5 @@
 World-Altering Editor
-Copyright (C) Rami 'Rampastring' Pasanen 2024
+Copyright (C) Rami 'Rampastring' Pasanen 2026
 https://github.com/Rampastring
 https://www.moddb.com/mods/the-dawn-of-the-tiberium-age
 
