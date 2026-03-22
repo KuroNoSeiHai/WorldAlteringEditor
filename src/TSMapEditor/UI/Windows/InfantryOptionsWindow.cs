@@ -108,7 +108,9 @@ namespace TSMapEditor.UI.Windows
 
         private void RefreshValues()
         {
-            lblSelectedInfantryValue.Text = infantry.ObjectType.GetEditorDisplayName() + ", sub cell: " + infantry.SubCell;
+            string subCellString = Translate("SubCell." + infantry.SubCell.ToString(), infantry.SubCell.ToString());
+
+            lblSelectedInfantryValue.Text = string.Format(Translate(this, nameof(lblSelectedInfantryValue) + ".Format", "{0}, sub cell: {1}"), infantry.ObjectType.GetEditorDisplayName(), subCellString);
             trbStrength.Value = infantry.HP;
             ddMission.SelectedIndex = ddMission.Items.FindIndex(item => item.Text == infantry.Mission);
             int veterancyIndex = ddVeterancy.Items.FindIndex(i => (int)i.Tag == infantry.Veterancy);
