@@ -133,6 +133,12 @@ namespace TSMapEditor.UI
         public virtual void Update(Point2D? cellCoords) { }
 
         /// <summary>
+        /// Called each frame when the cursor is outside of the map view.
+        /// Allows the cursor action to clean up state to prevent accidental painting.
+        /// </summary>
+        public virtual void InactiveUpdate() { }
+
+        /// <summary>
         /// Called after drawing the map.
         /// Override in derived classes to draw on top of the map texture.
         /// </summary>

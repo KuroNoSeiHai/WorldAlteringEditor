@@ -41,6 +41,15 @@ namespace TSMapEditor.UI.CursorActions
 
         private bool blocked;
 
+        public override void InactiveUpdate()
+        {
+            lineSourceCell = null;
+            blocked = false;
+
+            if (placeTerrainLineMutation != null)
+                ClearPreview();
+        }
+
         public override void OnActionEnter()
         {
             heightOffset = 0;

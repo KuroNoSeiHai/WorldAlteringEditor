@@ -47,6 +47,15 @@ namespace TSMapEditor.UI.CursorActions
         private PlaceTerrainObjectLineMutation linePreviewMutation;
         private bool blocked;
 
+        public override void InactiveUpdate()
+        {
+            lineSourceCell = null;
+            blocked = false;
+
+            if (linePreviewMutation != null)
+                ClearLinePreview();
+        }
+
         public override void OnActionExit()
         {
             ClearLinePreview();

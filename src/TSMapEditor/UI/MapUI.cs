@@ -644,21 +644,29 @@ namespace TSMapEditor.UI
             tileUnderCursor = tile;
             TileInfoDisplay.MapTile = tile;
 
-            if (IsActive && tileUnderCursor != null)
+            if (IsActive)
             {
-                var tilePosition = GetRelativeTilePositionFromCursorPosition(tileUnderCursor);
-                TechnoUnderCursor = tileUnderCursor.GetTechno(tilePosition);
-
-                if (KeyboardCommands.Instance.DeleteObject.AreKeysDown(Keyboard))
+                if (tileUnderCursor != null)
                 {
-                    if (WindowManager.SelectedControl == null || WindowManager.SelectedControl is not XNATextBox)
-                        DeleteObjectFromCell(tileUnderCursor.CoordsToPoint());
-                }
+                    var tilePosition = GetRelativeTilePositionFromCursorPosition(tileUnderCursor);
+                    TechnoUnderCursor = tileUnderCursor.GetTechno(tilePosition);
 
+                    if (KeyboardCommands.Instance.DeleteObject.AreKeysDown(Keyboard))
+                    {
+                        if (WindowManager.SelectedControl == null || WindowManager.SelectedControl is not XNATextBox)
+                            DeleteObjectFromCell(tileUnderCursor.CoordsToPoint());
+                    }
+
+                    if (CursorAction != null)
+                    {
+                        CursorAction.Update(tileUnderCursor.CoordsToPoint());
+                    }
+                }
+            }
+            else
+            {
                 if (CursorAction != null)
-                {
-                    CursorAction.Update(tileUnderCursor.CoordsToPoint());
-                }
+                    CursorAction.InactiveUpdate();
             }
 
             base.Update(gameTime);
