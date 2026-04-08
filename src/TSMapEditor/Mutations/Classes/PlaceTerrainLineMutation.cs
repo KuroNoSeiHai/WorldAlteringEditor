@@ -35,15 +35,12 @@ namespace TSMapEditor.Mutations.Classes
 
             for (int i = 0; i < tile.TMPImages.Length; i++)
             {
-                var image = tile.TMPImages[i];
+                Point2D? subTileOffset = tile.GetSubTileCoordOffset(i);
 
-                if (image == null)
+                if (subTileOffset == null)
                     continue;
 
-                int cx = i % tile.Width;
-                int cy = i / tile.Height;
-
-                int southOffset = (cx + cy) / 2;
+                int southOffset = (subTileOffset.Value.X + subTileOffset.Value.Y) / 2;
                 if (southOffset > maxY)
                     maxY = southOffset;
             }
@@ -57,15 +54,12 @@ namespace TSMapEditor.Mutations.Classes
 
             for (int i = 0; i < tile.TMPImages.Length; i++)
             {
-                var image = tile.TMPImages[i];
+                Point2D? subTileOffset = tile.GetSubTileCoordOffset(i);
 
-                if (image == null)
+                if (subTileOffset == null)
                     continue;
 
-                int cx = i % tile.Width;
-                int cy = i / tile.Height;
-
-                int eastOffset = cx - cy;
+                int eastOffset = subTileOffset.Value.X - subTileOffset.Value.Y;
 
                 if (eastOffset > maxEast)
                     maxEast = eastOffset;
@@ -80,15 +74,12 @@ namespace TSMapEditor.Mutations.Classes
 
             for (int i = 0; i < tile.TMPImages.Length; i++)
             {
-                var image = tile.TMPImages[i];
+                Point2D? subTileOffset = tile.GetSubTileCoordOffset(i);
 
-                if (image == null)
+                if (subTileOffset == null)
                     continue;
 
-                int cx = i % tile.Width;
-                int cy = i / tile.Height;
-
-                int westOffset = cy - cx;
+                int westOffset = subTileOffset.Value.Y - subTileOffset.Value.X;
 
                 if (westOffset > maxWest)
                     maxWest = westOffset;
@@ -139,21 +130,22 @@ namespace TSMapEditor.Mutations.Classes
             // Process cells within tile foundation
             for (int i = 0; i < tile.TMPImages.Length; i++)
             {
-                MGTMPImage image = tile.TMPImages[i];
+                Point2D? subTileOffset = tile.GetSubTileCoordOffset(i);
 
-                if (image == null)
+                if (subTileOffset == null)
                     continue;
 
-                int cx = coords.X + i % tile.Width;
-                int cy = coords.Y + i / tile.Width;
-
-                Point2D cellCoords = new Point2D(cx, cy);
+                Point2D cellCoords = coords + subTileOffset.Value;
                 var cell = Map.GetTile(cellCoords);
                 if (cell == null)
                     continue;
 
+                if (undoData.Exists(d => d.CellCoords == cellCoords))
+                    continue;
+
                 undoData.Add(new OriginalCellTerrainData(cellCoords, cell.TileIndex, cell.SubTileIndex, cell.Level));
                 cell.ChangeTileIndex(tile.TileID, (byte)i);
+                cell.Level = (byte)Math.Min(cell.Level + tile.GetSubTile(i).TmpImage.Height, Constants.MaxMapHeightLevel);
             }
         }
 

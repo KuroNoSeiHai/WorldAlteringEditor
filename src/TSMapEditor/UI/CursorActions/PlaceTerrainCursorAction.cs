@@ -1,6 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using Rampastring.XNAUI;
 using Rampastring.XNAUI.Input;
+using SharpDX.Direct2D1.Effects;
+using SharpDX.MediaFoundation;
 using System;
 using System.Collections.Generic;
 using TSMapEditor.GameMath;
@@ -37,6 +39,9 @@ namespace TSMapEditor.UI.CursorActions
         private HashSet<MapTile> previewTiles = new HashSet<MapTile>();
 
         private Point2D? lineSourceCell;
+        private PlaceTerrainLineMutation placeTerrainLineMutation;
+
+        private bool blocked;
 
         public override void OnActionEnter()
         {
@@ -106,8 +111,23 @@ namespace TSMapEditor.UI.CursorActions
                 cell.PreviewLevel = -1;
             }
 
+            if (placeTerrainLineMutation != null)
+            {
+                placeTerrainLineMutation.Undo();
+                placeTerrainLineMutation = null;
+            }
+
             previewTiles.Clear();
             CursorActionTarget.InvalidateMap();
+        }
+
+        private (Direction direction, Point2D vector, int length) GetLineInformation(Point2D cellCoords)
+        {
+            Direction direction = Helpers.DirectionFromPoints(lineSourceCell.Value, cellCoords);
+            Point2D vector = cellCoords - lineSourceCell.Value;
+            int length = Math.Max(Math.Abs(vector.X), Math.Abs(vector.Y));
+
+            return (direction, vector, length);
         }
 
         /// <summary>
@@ -121,9 +141,7 @@ namespace TSMapEditor.UI.CursorActions
             if (cellCoords == lineSourceCell.Value)
                 return;
 
-            Direction direction = Helpers.DirectionFromPoints(lineSourceCell.Value, cellCoords);
-            Point2D vector = cellCoords - lineSourceCell.Value;
-            int length = Math.Max(Math.Abs(vector.X), Math.Abs(vector.Y));
+            (Direction direction, Point2D vector, int length) = GetLineInformation(cellCoords);
 
             Point2D cameraPoint1 = CellMath.CellCenterPointFromCellCoords_3D(lineSourceCell.Value, Map) - cameraTopLeftPoint;
             Point2D cameraPoint2 = CellMath.CellCenterPointFromCellCoords_3D(lineSourceCell.Value + Helpers.VisualDirectionToPoint(direction).ScaleBy(length), Map) - cameraTopLeftPoint;
@@ -131,10 +149,59 @@ namespace TSMapEditor.UI.CursorActions
             Renderer.DrawLine(cameraPoint1.ToXNAVector(), cameraPoint2.ToXNAVector(), Color.Orange, 2);
         }
 
+        private void ApplyLinePreview(Point2D cellCoords)
+        {
+            Point2D adjustedCellCoords = GetAdjustedCellCoords(cellCoords);
+
+            MapTile originTile = CursorActionTarget.Map.GetTile(cellCoords);
+
+            Direction direction;
+            Point2D vector;
+            int length;
+
+            if (lineSourceCell.Value == adjustedCellCoords)
+            {
+                direction = default;
+                vector = default;
+                length = 1;
+            }
+            else
+            {
+                (direction, vector, length) = GetLineInformation(adjustedCellCoords);
+            }
+
+            if (length < 2)
+            {
+                Tile.DoForValidSubTiles((subTile, subTileOffset, subTileIndex) =>
+                {
+                    var mapTile = Map.GetTile(adjustedCellCoords + subTileOffset);
+
+                    if (mapTile != null && (!CursorActionTarget.OnlyPaintOnClearGround || mapTile.IsClearGround()))
+                    {
+                        mapTile.PreviewSubTileIndex = subTileIndex;
+                        mapTile.PreviewLevel = Math.Min(mapTile.Level + subTile.TmpImage.Height, Constants.MaxMapHeightLevel);
+                        mapTile.PreviewTileImage = Tile;
+                        previewTiles.Add(mapTile);
+                    }
+                });
+            }
+            else
+            {
+                placeTerrainLineMutation = new PlaceTerrainLineMutation(MutationTarget, Map.GetTile(lineSourceCell.Value), direction, length, Tile);
+                placeTerrainLineMutation.Perform();
+            }
+        }
+
         private void ApplyPreviewForCells(Point2D cellCoords)
         {
             if (Tile == null)
                 return;
+
+            if (lineSourceCell.HasValue)
+            {
+                ApplyLinePreview(cellCoords);
+                return;
+            }
 
             Point2D adjustedCellCoords = GetAdjustedCellCoords(cellCoords);
 
@@ -146,17 +213,15 @@ namespace TSMapEditor.UI.CursorActions
             // First, look up the lowest point within the tile area for origin level
             // Only use a 1x1 brush size for this (meaning no brush at all)
             // so users can use larger brush sizes to "paint height"
+
             for (int i = 0; i < Tile.TMPImages.Length; i++)
             {
-                MGTMPImage image = Tile.TMPImages[i];
+                Point2D? subTileOffset = Tile.GetSubTileCoordOffset(i);
 
-                if (image == null)
+                if (subTileOffset == null)
                     continue;
 
-                int cx = adjustedCellCoords.X + i % Tile.Width;
-                int cy = adjustedCellCoords.Y + i / Tile.Width;
-
-                var mapTile = MutationTarget.Map.GetTile(cx, cy);
+                var mapTile = MutationTarget.Map.GetTile(adjustedCellCoords + subTileOffset.Value);
 
                 if (mapTile != null)
                 {
@@ -165,7 +230,7 @@ namespace TSMapEditor.UI.CursorActions
                     int cellLevel = mapTile.Level;
 
                     // Allow replacing back cliffs
-                    if (existingTile.TmpImage.Height == image.TmpImage.Height)
+                    if (existingTile.TmpImage.Height == Tile.GetSubTile(i).TmpImage.Height)
                         cellLevel -= existingTile.TmpImage.Height;
 
                     if (originLevel < 0 || cellLevel < originLevel)
@@ -182,19 +247,17 @@ namespace TSMapEditor.UI.CursorActions
             {
                 for (int i = 0; i < Tile.TMPImages.Length; i++)
                 {
-                    MGTMPImage image = Tile.TMPImages[i];
+                    Point2D? subTileOffset = Tile.GetSubTileCoordOffset(i);
 
-                    if (image == null)
+                    if (subTileOffset == null)
                         continue;
 
-                    int cx = adjustedCellCoords.X + (offset.X * Tile.Width) + i % Tile.Width;
-                    int cy = adjustedCellCoords.Y + (offset.Y * Tile.Height) + i / Tile.Width;
+                    var mapTile = Map.GetTile(adjustedCellCoords + new Point2D(offset.X * Tile.Width, offset.Y * Tile.Height) + subTileOffset.Value);
 
-                    var mapTile = CursorActionTarget.Map.GetTile(cx, cy);
                     if (mapTile != null && (!CursorActionTarget.OnlyPaintOnClearGround || mapTile.IsClearGround()))
                     {
                         mapTile.PreviewSubTileIndex = i;
-                        mapTile.PreviewLevel = Math.Min(originLevel + image.TmpImage.Height, Constants.MaxMapHeightLevel);
+                        mapTile.PreviewLevel = Math.Min(originLevel + Tile.GetSubTile(i).TmpImage.Height, Constants.MaxMapHeightLevel);
                         mapTile.PreviewTileImage = Tile;
                         previewTiles.Add(mapTile);
                     }
@@ -249,6 +312,9 @@ namespace TSMapEditor.UI.CursorActions
             if (Tile == null)
                 return;
 
+            if (blocked)
+                return;
+
             Point2D adjustedCellCoords = GetAdjustedCellCoords(cellCoords);
 
             Mutation mutation = null;
@@ -265,11 +331,25 @@ namespace TSMapEditor.UI.CursorActions
             }
             else if (KeyboardCommands.Instance.PlaceTerrainLine.AreKeysOrModifiersDown(Keyboard))
             {
-                if (lineSourceCell == null)
+                var targetCell = CursorActionTarget.Map.GetTile(adjustedCellCoords);
+
+                if (lineSourceCell == null && targetCell != null)
                 {
-                    lineSourceCell = cellCoords;
+                    lineSourceCell = adjustedCellCoords;
                 }
 
+                return;
+            }
+            else if (lineSourceCell != null)
+            {
+                // Place a line if Shift is released. Block the user from accidentally placing a tile at the end of the line.
+                if (adjustedCellCoords != lineSourceCell)
+                {
+                    ApplyTerrainLine(adjustedCellCoords);
+                    blocked = true;
+                }
+
+                lineSourceCell = null;
                 return;
             }
             else
@@ -296,13 +376,14 @@ namespace TSMapEditor.UI.CursorActions
             {
                 if (lineSourceCell != null && cellCoords != lineSourceCell.Value)
                 {
-                    ApplyTerrainLine(cellCoords);
+                    ApplyTerrainLine(GetAdjustedCellCoords(cellCoords));
                 }
 
                 return;
             }
 
             LeftDown(cellCoords);
+            blocked = false;
         }
     }
 }
