@@ -654,6 +654,11 @@ namespace TSMapEditor.UI
                     if (WindowManager.SelectedControl == null || WindowManager.SelectedControl is not XNATextBox)
                         DeleteObjectFromCell(tileUnderCursor.CoordsToPoint());
                 }
+
+                if (CursorAction != null)
+                {
+                    CursorAction.Update(tileUnderCursor.CoordsToPoint());
+                }
             }
 
             base.Update(gameTime);

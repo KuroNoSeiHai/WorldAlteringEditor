@@ -127,6 +127,12 @@ namespace TSMapEditor.UI
         public virtual void LeftClick(Point2D cellCoords) { }
 
         /// <summary>
+        /// Called on each frame.
+        /// </summary>
+        /// <param name="cellCoords">The coords of the cell under the cursor, if any.</param>
+        public virtual void Update(Point2D? cellCoords) { }
+
+        /// <summary>
         /// Called after drawing the map.
         /// Override in derived classes to draw on top of the map texture.
         /// </summary>

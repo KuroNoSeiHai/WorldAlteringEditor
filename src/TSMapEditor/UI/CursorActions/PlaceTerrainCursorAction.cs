@@ -1,8 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Rampastring.XNAUI;
 using Rampastring.XNAUI.Input;
-using SharpDX.Direct2D1.Effects;
-using SharpDX.MediaFoundation;
 using System;
 using System.Collections.Generic;
 using TSMapEditor.GameMath;
@@ -143,8 +141,8 @@ namespace TSMapEditor.UI.CursorActions
 
             (Direction direction, Point2D vector, int length) = GetLineInformation(cellCoords);
 
-            Point2D cameraPoint1 = CellMath.CellCenterPointFromCellCoords_3D(lineSourceCell.Value, Map) - cameraTopLeftPoint;
-            Point2D cameraPoint2 = CellMath.CellCenterPointFromCellCoords_3D(lineSourceCell.Value + Helpers.VisualDirectionToPoint(direction).ScaleBy(length), Map) - cameraTopLeftPoint;
+            Point2D cameraPoint1 = (CellMath.CellCenterPointFromCellCoords_3D(lineSourceCell.Value, Map) - cameraTopLeftPoint).ScaleBy(CursorActionTarget.Camera.ZoomLevel);
+            Point2D cameraPoint2 = (CellMath.CellCenterPointFromCellCoords_3D(lineSourceCell.Value + Helpers.VisualDirectionToPoint(direction).ScaleBy(length), Map) - cameraTopLeftPoint).ScaleBy(CursorActionTarget.Camera.ZoomLevel);
 
             Renderer.DrawLine(cameraPoint1.ToXNAVector(), cameraPoint2.ToXNAVector(), Color.Orange, 2);
         }
@@ -340,18 +338,6 @@ namespace TSMapEditor.UI.CursorActions
 
                 return;
             }
-            else if (lineSourceCell != null)
-            {
-                // Place a line if Shift is released. Block the user from accidentally placing a tile at the end of the line.
-                if (adjustedCellCoords != lineSourceCell)
-                {
-                    ApplyTerrainLine(adjustedCellCoords);
-                    blocked = true;
-                }
-
-                lineSourceCell = null;
-                return;
-            }
             else
             {
                 mutation = new PlaceTerrainTileMutation(CursorActionTarget.MutationTarget, adjustedCellCoords, Tile, heightOffset);
@@ -384,6 +370,18 @@ namespace TSMapEditor.UI.CursorActions
 
             LeftDown(cellCoords);
             blocked = false;
+        }
+
+        public override void Update(Point2D? cellCoords)
+        {
+            if (lineSourceCell != null && cellCoords != null && lineSourceCell != cellCoords)
+            {
+                if (!KeyboardCommands.Instance.PlaceTerrainLine.AreKeysOrModifiersDown(Keyboard))
+                {
+                    ApplyTerrainLine(GetAdjustedCellCoords(cellCoords.Value));
+                    blocked = true;
+                }
+            }
         }
     }
 }
