@@ -6,19 +6,60 @@ using TSMapEditor.UI;
 
 namespace TSMapEditor.Mutations.Classes
 {
+    public abstract class ConnectedOverlayMutationBase : Mutation
+    {
+        protected ConnectedOverlayMutationBase(IMutationTarget mutationTarget, ConnectedOverlayType connectedOverlayType) : base(mutationTarget)
+        {
+            ConnectedOverlayType = connectedOverlayType;
+        }
+
+        protected ConnectedOverlayType ConnectedOverlayType { get; }
+
+        protected void UpdateConnectedOverlay(MapTile tile)
+        {
+            if (tile?.Overlay == null || !ConnectedOverlayType.ContainsOverlay(tile.Overlay))
+                return;
+
+            var connectedOverlayFrame = ConnectedOverlayType.GetContainedConnectedOverlayType(tile.Overlay)
+                ?.GetOverlayForCell(MutationTarget, tile.CoordsToPoint());
+            if (connectedOverlayFrame == null)
+                return;
+
+            tile.Overlay = new Overlay()
+            {
+                Position = tile.CoordsToPoint(),
+                OverlayType = connectedOverlayFrame.OverlayType,
+                FrameIndex = connectedOverlayFrame.FrameIndex
+            };
+        }
+
+        protected void PlaceConnectedOverlay(MapTile tile)
+        {
+            if (tile == null)
+                return;
+
+            var connectedOverlayFrame = ConnectedOverlayType.GetOverlayForCell(MutationTarget, tile.CoordsToPoint()) ?? ConnectedOverlayType.Frames[0];
+
+            tile.Overlay = new Overlay()
+            {
+                Position = tile.CoordsToPoint(),
+                OverlayType = connectedOverlayFrame.OverlayType,
+                FrameIndex = connectedOverlayFrame.FrameIndex
+            };
+        }
+    }
+
     /// <summary>
     /// A mutation that allows placing connected overlays.
     /// </summary>
-    class PlaceConnectedOverlayMutation : Mutation
+    class PlaceConnectedOverlayMutation : ConnectedOverlayMutationBase
     {
-        public PlaceConnectedOverlayMutation(IMutationTarget mutationTarget, ConnectedOverlayType connectedOverlayType, Point2D cellCoords) : base(mutationTarget)
+        public PlaceConnectedOverlayMutation(IMutationTarget mutationTarget, ConnectedOverlayType connectedOverlayType, Point2D cellCoords) : base(mutationTarget, connectedOverlayType)
         {
-            this.connectedOverlayType = connectedOverlayType;
             this.cellCoords = cellCoords;
             brush = mutationTarget.BrushSize;
         }
 
-        private readonly ConnectedOverlayType connectedOverlayType;
         private readonly BrushSize brush;
         private readonly Point2D cellCoords;
 
@@ -28,7 +69,7 @@ namespace TSMapEditor.Mutations.Classes
         {
             return string.Format(Translate(this, "DisplayString", 
                 "Place connected overlay '{0}' at {1} with a brush size of {2}"),
-                    connectedOverlayType.UIName, cellCoords, brush);
+                    ConnectedOverlayType.UIName, cellCoords, brush);
         }
 
         public override void Perform()
@@ -72,39 +113,6 @@ namespace TSMapEditor.Mutations.Classes
 
             undoData = originalOverlayInfos.ToArray();
             MutationTarget.AddRefreshPoint(cellCoords, Math.Max(brush.Width, brush.Height) + 1);
-        }
-
-        private void UpdateConnectedOverlay(MapTile tile)
-        {
-            if (tile?.Overlay == null || !connectedOverlayType.ContainsOverlay(tile.Overlay))
-                return;
-
-            var connectedOverlayFrame = connectedOverlayType.GetContainedConnectedOverlayType(tile.Overlay)
-                ?.GetOverlayForCell(MutationTarget, tile.CoordsToPoint());
-            if (connectedOverlayFrame == null)
-                return;
-
-            tile.Overlay = new Overlay()
-            {
-                Position = tile.CoordsToPoint(),
-                OverlayType = connectedOverlayFrame.OverlayType,
-                FrameIndex = connectedOverlayFrame.FrameIndex
-            };
-        }
-
-        private void PlaceConnectedOverlay(MapTile tile)
-        {
-            if (tile == null)
-                return;
-
-            var connectedOverlayFrame = connectedOverlayType.GetOverlayForCell(MutationTarget, tile.CoordsToPoint()) ?? connectedOverlayType.Frames[0];
-
-            tile.Overlay = new Overlay()
-            {
-                Position = tile.CoordsToPoint(),
-                OverlayType = connectedOverlayFrame.OverlayType,
-                FrameIndex = connectedOverlayFrame.FrameIndex
-            };
         }
 
         public override void Undo()

@@ -300,11 +300,6 @@ namespace TSMapEditor.UI.CursorActions
             CursorActionTarget.AddRefreshPoint(adjustedCellCoords, Math.Max(Tile.Width, Tile.Height) * Math.Max(brush.Width, brush.Height) + 1);
         }
 
-        public override void LeftUpOnMouseMove(Point2D cellCoords)
-        {
-            lineSourceCell = null;
-        }
-
         public override void LeftDown(Point2D cellCoords)
         {
             if (Tile == null)
@@ -382,6 +377,9 @@ namespace TSMapEditor.UI.CursorActions
                     blocked = true;
                 }
             }
+
+            if (!CursorActionTarget.WindowManager.Cursor.LeftDown && !CursorActionTarget.WindowManager.Cursor.LeftClicked)
+                blocked = false;
         }
     }
 }
