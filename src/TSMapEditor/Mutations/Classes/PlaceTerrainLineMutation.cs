@@ -146,6 +146,15 @@ namespace TSMapEditor.Mutations.Classes
                 undoData.Add(new OriginalCellTerrainData(cellCoords, cell.TileIndex, cell.SubTileIndex, cell.Level));
                 cell.ChangeTileIndex(tile.TileID, (byte)i);
                 cell.Level = (byte)Math.Min(cell.Level + tile.GetSubTile(i).TmpImage.Height, Constants.MaxMapHeightLevel);
+
+                if (MutationTarget.AutoLATEnabled)
+                {
+                    BrushSize brush1x1 = Map.EditorConfig.BrushSizes.Find(static bs => bs.Width == 1 && bs.Height == 1);
+                    if (brush1x1 == null)
+                        throw new InvalidOperationException($"{nameof(PlaceTerrainLineMutation)}.{nameof(PlaceTile)}: Unable to find 1x1 brush!");
+
+                    ApplyAutoLATForTilePlacement(tile, brush1x1, cellCoords);
+                }
             }
         }
 
