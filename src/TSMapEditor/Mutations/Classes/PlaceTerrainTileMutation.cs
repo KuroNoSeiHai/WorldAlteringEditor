@@ -25,7 +25,7 @@ namespace TSMapEditor.Mutations.Classes
         private readonly int heightOffset;
         private readonly BrushSize brushSize;
 
-        private List<OriginalTerrainData> undoData;
+        private List<OriginalCellTerrainData> undoData;
 
         private static readonly Point2D[] surroundingTiles = new Point2D[] { new Point2D(-1, 0), new Point2D(1, 0), new Point2D(0, -1), new Point2D(0, 1) };
 
@@ -53,14 +53,14 @@ namespace TSMapEditor.Mutations.Classes
                 if (mapTile != null && (!MutationTarget.OnlyPaintOnClearGround || mapTile.IsClearGround()) &&
                     !undoData.Exists(otd => otd.CellCoords.X == cx && otd.CellCoords.Y == cy))
                 {
-                    undoData.Add(new OriginalTerrainData(mapTile.TileIndex, mapTile.SubTileIndex, mapTile.Level, mapTile.CoordsToPoint()));
+                    undoData.Add(new OriginalCellTerrainData(mapTile.CoordsToPoint(), mapTile.TileIndex, mapTile.SubTileIndex, mapTile.Level));
                 }
             }
         }
 
         public override void Perform()
         {
-            undoData = new List<OriginalTerrainData>(tile.TMPImages.Length * brushSize.Width * brushSize.Height);
+            undoData = new List<OriginalCellTerrainData>(tile.TMPImages.Length * brushSize.Width * brushSize.Height);
 
             int totalWidth = tile.Width * brushSize.Width;
             int totalHeight = tile.Height * brushSize.Height;
@@ -164,13 +164,13 @@ namespace TSMapEditor.Mutations.Classes
         {
             for (int i = 0; i < undoData.Count; i++)
             {
-                OriginalTerrainData originalTerrainData = undoData[i];
+                OriginalCellTerrainData originalTerrainData = undoData[i];
 
                 var mapCell = MutationTarget.Map.GetTile(originalTerrainData.CellCoords);
                 if (mapCell != null)
                 {
                     mapCell.ChangeTileIndex(originalTerrainData.TileIndex, originalTerrainData.SubTileIndex);
-                    mapCell.Level = originalTerrainData.Level;
+                    mapCell.Level = originalTerrainData.HeightLevel;
                     RefreshCellLighting(mapCell);
                 }
             }

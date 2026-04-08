@@ -1,4 +1,6 @@
-﻿using Rampastring.XNAUI.Input;
+﻿using Microsoft.Xna.Framework;
+using Rampastring.XNAUI;
+using Rampastring.XNAUI.Input;
 using System;
 using System.Collections.Generic;
 using TSMapEditor.GameMath;
@@ -33,6 +35,8 @@ namespace TSMapEditor.UI.CursorActions
         private int heightOffset;
 
         private HashSet<MapTile> previewTiles = new HashSet<MapTile>();
+
+        private Point2D? lineSourceCell;
 
         public override void OnActionEnter()
         {
@@ -104,6 +108,27 @@ namespace TSMapEditor.UI.CursorActions
 
             previewTiles.Clear();
             CursorActionTarget.InvalidateMap();
+        }
+
+        /// <summary>
+        /// Draws a preview for the line-based terrain placement feature.
+        /// </summary>
+        public override void DrawPreview(Point2D cellCoords, Point2D cameraTopLeftPoint)
+        {
+            if (!lineSourceCell.HasValue)
+                return;
+
+            if (cellCoords == lineSourceCell.Value)
+                return;
+
+            Direction direction = Helpers.DirectionFromPoints(lineSourceCell.Value, cellCoords);
+            Point2D vector = cellCoords - lineSourceCell.Value;
+            int length = Math.Max(Math.Abs(vector.X), Math.Abs(vector.Y));
+
+            Point2D cameraPoint1 = CellMath.CellCenterPointFromCellCoords_3D(lineSourceCell.Value, Map) - cameraTopLeftPoint;
+            Point2D cameraPoint2 = CellMath.CellCenterPointFromCellCoords_3D(lineSourceCell.Value + Helpers.VisualDirectionToPoint(direction).ScaleBy(length), Map) - cameraTopLeftPoint;
+
+            Renderer.DrawLine(cameraPoint1.ToXNAVector(), cameraPoint2.ToXNAVector(), Color.Orange, 2);
         }
 
         private void ApplyPreviewForCells(Point2D cellCoords)
@@ -214,6 +239,11 @@ namespace TSMapEditor.UI.CursorActions
             CursorActionTarget.AddRefreshPoint(adjustedCellCoords, Math.Max(Tile.Width, Tile.Height) * Math.Max(brush.Width, brush.Height) + 1);
         }
 
+        public override void LeftUpOnMouseMove(Point2D cellCoords)
+        {
+            lineSourceCell = null;
+        }
+
         public override void LeftDown(Point2D cellCoords)
         {
             if (Tile == null)
@@ -223,7 +253,7 @@ namespace TSMapEditor.UI.CursorActions
 
             Mutation mutation = null;
 
-            if (KeyboardCommands.Instance.FillTerrain.AreKeysOrModifiersDown(CursorActionTarget.WindowManager.Keyboard)
+            if (KeyboardCommands.Instance.FillTerrain.AreKeysOrModifiersDown(Keyboard)
                 && (Tile.Width == 1 && Tile.Height == 1))
             {
                 var targetCell = CursorActionTarget.Map.GetTile(adjustedCellCoords);
@@ -233,6 +263,15 @@ namespace TSMapEditor.UI.CursorActions
                     mutation = new FillTerrainAreaMutation(CursorActionTarget.MutationTarget, targetCell, Tile);
                 }
             }
+            else if (KeyboardCommands.Instance.PlaceTerrainLine.AreKeysOrModifiersDown(Keyboard))
+            {
+                if (lineSourceCell == null)
+                {
+                    lineSourceCell = cellCoords;
+                }
+
+                return;
+            }
             else
             {
                 mutation = new PlaceTerrainTileMutation(CursorActionTarget.MutationTarget, adjustedCellCoords, Tile, heightOffset);
@@ -241,8 +280,28 @@ namespace TSMapEditor.UI.CursorActions
             CursorActionTarget.MutationManager.PerformMutation(mutation);
         }
 
+        private void ApplyTerrainLine(Point2D cellCoords)
+        {
+            Direction direction = Helpers.DirectionFromPoints(lineSourceCell.Value, cellCoords);
+            Point2D vector = cellCoords - lineSourceCell.Value;
+            int length = Math.Max(Math.Abs(vector.X), Math.Abs(vector.Y));
+            var mutation = new PlaceTerrainLineMutation(MutationTarget, Map.GetTile(lineSourceCell.Value), direction, length, Tile);
+            PerformMutation(mutation);
+            lineSourceCell = null;
+        }
+
         public override void LeftClick(Point2D cellCoords)
         {
+            if (KeyboardCommands.Instance.PlaceTerrainLine.AreKeysOrModifiersDown(Keyboard))
+            {
+                if (lineSourceCell != null && cellCoords != lineSourceCell.Value)
+                {
+                    ApplyTerrainLine(cellCoords);
+                }
+
+                return;
+            }
+
             LeftDown(cellCoords);
         }
     }

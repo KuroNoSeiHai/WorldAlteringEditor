@@ -132,6 +132,8 @@ namespace TSMapEditor.GameMath
 
         public Point2D ScaleBy(float scale) => new Point2D((int)(X * scale), (int)(Y * scale));
 
+        public Point2D ScaleBy(int scale) => new Point2D(X * scale, Y * scale);
+
         public byte[] GetData()
         {
             byte[] buffer = new byte[sizeof(int) * 2];

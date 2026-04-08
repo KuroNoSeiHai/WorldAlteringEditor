@@ -395,7 +395,7 @@ namespace TSMapEditor.Mutations.Classes
         private HashSet<Point2D> occupiedCells = new HashSet<Point2D>();
         private Random random;
 
-        private List<OriginalTerrainData> undoData;
+        private List<OriginalCellTerrainData> undoData;
         private List<TerrainObject> placedTerrainObjects;
         private List<Point2D> placedOverlayCellCoords;
         private List<Point2D> placedSmudgeCellCoords;
@@ -419,7 +419,7 @@ namespace TSMapEditor.Mutations.Classes
             {
                 var mapCell = MutationTarget.Map.GetTile(originalTerrainData.CellCoords);
                 mapCell.ChangeTileIndex(originalTerrainData.TileIndex, originalTerrainData.SubTileIndex);
-                mapCell.Level = originalTerrainData.Level;
+                mapCell.Level = originalTerrainData.HeightLevel;
             }
 
             foreach (var terrainObject in placedTerrainObjects)
@@ -453,7 +453,7 @@ namespace TSMapEditor.Mutations.Classes
         {
             random = new Random(seed);
 
-            undoData = new List<OriginalTerrainData>();
+            undoData = new List<OriginalCellTerrainData>();
             placedTerrainObjects = new List<TerrainObject>();
             placedOverlayCellCoords = new List<Point2D>();
             placedSmudgeCellCoords = new List<Point2D>();
@@ -628,7 +628,7 @@ namespace TSMapEditor.Mutations.Classes
                 if (mapTile == null)
                     continue;
 
-                undoData.Add(new OriginalTerrainData(mapTile.TileIndex, mapTile.SubTileIndex, mapTile.Level, cellCoords + offset));
+                undoData.Add(new OriginalCellTerrainData(cellCoords + offset, mapTile.TileIndex, mapTile.SubTileIndex, mapTile.Level));
 
                 mapTile.TileImage = null;
                 mapTile.TileIndex = tile.TileID;

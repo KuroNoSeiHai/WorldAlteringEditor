@@ -229,6 +229,49 @@ namespace TSMapEditor
 
         public static Point2D VisualDirectionToPoint(Direction direction) => visualDirectionToPointTable[(int)direction];
 
+        private static string[] directionToNameTable = new string[]
+        {
+            "Northeast", "East", "Southeast", "South", "Southwest", "West", "Northwest", "North"
+        };
+
+        public static string DirectionToName(Direction direction) => directionToNameTable[(int)direction];
+
+        public static Direction DirectionFromPoints(Point2D p1, Point2D p2)
+        {
+            if (p1 == p2)
+                throw new ArgumentException("Cannot get direction from two identical points.");
+
+            int xDiff = p2.X - p1.X;
+            int yDiff = p2.Y - p1.Y;
+
+            if (xDiff == 0 || Math.Abs(yDiff) > Math.Abs(xDiff * 2))
+            {
+                if (yDiff > 0)
+                    return Direction.SW;
+
+                return Direction.NE;
+            }
+
+            if (yDiff == 0 || Math.Abs(xDiff) > Math.Abs(yDiff * 2))
+            {
+                if (xDiff > 0)
+                    return Direction.SE;
+
+                return Direction.NW;
+            }
+
+            if (xDiff > 0 && yDiff > 0)
+                return Direction.S;
+
+            if (xDiff > 0 && yDiff < 0)
+                return Direction.E;
+
+            if (xDiff < 0 && yDiff > 0)
+                return Direction.W;
+
+            return Direction.N;
+        }
+
         public static List<Direction> GetDirectionsInMask(byte mask)
         {
             List<Direction> directions = new List<Direction>();
