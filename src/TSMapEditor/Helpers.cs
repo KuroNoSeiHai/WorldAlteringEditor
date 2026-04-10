@@ -847,5 +847,29 @@ namespace TSMapEditor
                     throw new NotImplementedException(nameof(DifficultyToTranslatedString) + ": Unknown difficulty level " + difficulty);
             }
         }
+
+        /// <summary>
+        /// Shared helper function used by Triggers, TaskForces, Scripts, TeamTypes, and AI Triggers.
+        /// Used to generate the name of the instance during the cloning process of those entities.
+        /// If the provided name contains a number, the number is incremented and the name is returned as is. 
+        /// Otherwise, a localized " (Clone)" suffix is appended to the name.
+        /// If there are multiple numbers in the name, only the first is incremented.
+        /// </summary>
+        public static string GetNameForClone(string name)
+        {
+            string[] parts = name.Split(" ");
+            int numPart = -1;            
+
+            for (int i = 0; i < parts.Length; i++)
+            {                
+                if (int.TryParse(parts[i], out numPart) && numPart >= 0)
+                {
+                    parts[i] = (numPart + 1).ToString(CultureInfo.InvariantCulture);
+                    return string.Join(" ", parts);
+                }
+            }
+
+            return name + Translate("CloneName", " (Clone)");
+        }
     }
 }

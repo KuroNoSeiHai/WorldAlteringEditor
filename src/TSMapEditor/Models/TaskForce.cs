@@ -160,7 +160,7 @@ namespace TSMapEditor.Models
         public TaskForce Clone(string iniName)
         {
             var newTaskForce = new TaskForce(iniName);
-            newTaskForce.Name = Name + Translate(this, "CloneName", " (Clone)");
+            newTaskForce.Name = Helpers.GetNameForClone(Name);
             newTaskForce.Group = Group;
 
             for (int i = 0; i < TechnoTypes.Length; i++)
