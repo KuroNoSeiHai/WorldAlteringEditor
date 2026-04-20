@@ -21,7 +21,7 @@ namespace TSMapEditor.Mutations.Classes
     /// <summary>
     /// A mutation that places a smudge on the map.
     /// </summary>
-    public class PlaceSmudgeMutation : Mutation
+    public class PlaceSmudgeMutation : Mutation, ICheckableMutation
     {
         public PlaceSmudgeMutation(IMutationTarget mutationTarget, SmudgeType smudgeType, Point2D cellCoords, BrushSize brushSize) : base(mutationTarget)
         {
@@ -34,6 +34,24 @@ namespace TSMapEditor.Mutations.Classes
         private SmudgeType smudgeType;
         private Point2D cellCoords;
         private BrushSize brushSize;
+
+        public bool ShouldPerform()
+        {
+            return brushSize.CheckForAnyCellInBrushArea(offset =>
+            {
+                var cell = MutationTarget.Map.GetTile(cellCoords + offset);
+                if (cell == null)
+                    return false;
+
+                if (cell.Smudge != null && cell.Smudge.SmudgeType == smudgeType)
+                    return false;
+
+                if (cell.Smudge == null && smudgeType == null)
+                    return false;
+
+                return true;
+            });
+        }
 
         public override string GetDisplayString()
         {

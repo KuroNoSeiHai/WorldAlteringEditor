@@ -9,7 +9,7 @@ namespace TSMapEditor.Mutations.Classes
     /// <summary>
     /// A mutation that allows placing smudge collections.
     /// </summary>
-    class PlaceSmudgeCollectionMutation : Mutation
+    class PlaceSmudgeCollectionMutation : Mutation, ICheckableMutation
     {
         public PlaceSmudgeCollectionMutation(IMutationTarget mutationTarget, SmudgeCollection smudgeCollection, Point2D cellCoords, BrushSize brushSize) : base(mutationTarget)
         {
@@ -23,6 +23,8 @@ namespace TSMapEditor.Mutations.Classes
         private SmudgeCollection smudgeCollection;
         private Point2D cellCoords;
         private BrushSize brushSize;
+
+        public bool ShouldPerform() => true;
 
         public override string GetDisplayString()
         {
