@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using TSMapEditor.GameMath;
 using TSMapEditor.Models;
@@ -8,53 +8,53 @@ using TSMapEditor.UI;
 namespace TSMapEditor.Mutations.Classes
 {
     /// <summary>
-    /// A mutation that allows placing overlay collections.
+    /// A mutation that allows placing overlay collections in a line on the map.
     /// </summary>
-    class PlaceOverlayCollectionMutation : Mutation, ICheckableMutation
+    class PlaceOverlayCollectionLineMutation : Mutation
     {
-        public PlaceOverlayCollectionMutation(IMutationTarget mutationTarget, OverlayCollection overlayCollection, Point2D cellCoords) : base(mutationTarget)
+        public PlaceOverlayCollectionLineMutation(IMutationTarget mutationTarget, OverlayCollection overlayCollection, Point2D sourceCoords, Direction direction, int length) : base(mutationTarget)
         {
             this.overlayCollection = overlayCollection;
-            this.brush = mutationTarget.BrushSize;
-            this.cellCoords = cellCoords;
+            this.sourceCoords = sourceCoords;
+            this.direction = direction;
+            this.length = length;
         }
 
         private readonly OverlayCollection overlayCollection;
-        private readonly BrushSize brush;
-        private readonly Point2D cellCoords;
+        private readonly Point2D sourceCoords;
+        private readonly Direction direction;
+        private readonly int length;
 
         private OriginalOverlayInfo[] undoData;
 
-        public bool ShouldPerform() => true;
-
         public override string GetDisplayString()
         {
-            return string.Format(Translate(this, "DisplayString", 
-                "Place overlay collection {0} at {1} with a brush size of {2}"),
-                    overlayCollection.Name, cellCoords, brush);
+            string directionString = Translate("Direction." + direction, Helpers.DirectionToName(direction));
+            return string.Format(Translate(this, "DisplayString",
+                "Place overlay collection '{0}' in a line from {1} towards {2} with length {3}"),
+                    overlayCollection.Name, sourceCoords, directionString, length);
         }
 
         public override void Perform()
         {
             var originalOverlayInfos = new List<OriginalOverlayInfo>();
+            Point2D step = Helpers.VisualDirectionToPoint(direction);
 
-            brush.DoForBrushSize(offset =>
+            for (int i = 0; i <= length; i++)
             {
-                var tile = MutationTarget.Map.GetTile(cellCoords + offset);
+                Point2D coords = sourceCoords + step.ScaleBy(i);
+                var tile = MutationTarget.Map.GetTile(coords);
                 if (tile == null)
-                    return;
+                    continue;
 
                 var collectionEntry = overlayCollection.Entries[MutationTarget.Randomizer.GetRandomNumber(0, overlayCollection.Entries.Length - 1)];
-                
+
                 if (collectionEntry.OverlayType.Tiberium)
                 {
-                    // Don't allow placing tiberium on impassable tiles, it's a common mapping error
-                    // that leads to harvesters getting stuck
-
                     TileImage tileGraphics = MutationTarget.TheaterGraphics.GetTileGraphics(tile.TileIndex);
                     MGTMPImage subCellImage = tileGraphics.TMPImages[tile.SubTileIndex];
                     if (Helpers.IsLandTypeImpassable(subCellImage.TmpImage.TerrainType, true))
-                        return;
+                        continue;
                 }
 
                 originalOverlayInfos.Add(new OriginalOverlayInfo()
@@ -66,22 +66,36 @@ namespace TSMapEditor.Mutations.Classes
 
                 tile.Overlay = new Overlay()
                 {
-                     Position = tile.CoordsToPoint(),
-                     OverlayType = collectionEntry.OverlayType,
-                     FrameIndex = collectionEntry.Frame
+                    Position = tile.CoordsToPoint(),
+                    OverlayType = collectionEntry.OverlayType,
+                    FrameIndex = collectionEntry.Frame
                 };
-            });
-
-            for (int y = -brush.Height - 1; y <= brush.Height + 1; y++)
-            {
-                for (int x = -brush.Width - 1; x <= brush.Width + 1; x++)
-                {
-                    SetOverlayFrameIndexForTile(cellCoords + new Point2D(x, y));
-                }
             }
 
+            UpdateFrameIndexesAroundLine(step);
+
             undoData = originalOverlayInfos.ToArray();
-            MutationTarget.AddRefreshPoint(cellCoords, Math.Max(brush.Width, brush.Height) + 1);
+            MutationTarget.AddRefreshPoint(sourceCoords, length + 2);
+        }
+
+        private void UpdateFrameIndexesAroundLine(Point2D step)
+        {
+            var updatedCells = new HashSet<Point2D>();
+
+            for (int i = 0; i <= length; i++)
+            {
+                Point2D coords = sourceCoords + step.ScaleBy(i);
+
+                for (int y = -1; y <= 1; y++)
+                {
+                    for (int x = -1; x <= 1; x++)
+                    {
+                        Point2D neighbor = coords + new Point2D(x, y);
+                        if (updatedCells.Add(neighbor))
+                            SetOverlayFrameIndexForTile(neighbor);
+                    }
+                }
+            }
         }
 
         private void SetOverlayFrameIndexForTile(Point2D cellCoords)
@@ -115,15 +129,9 @@ namespace TSMapEditor.Mutations.Classes
                 };
             }
 
-            for (int y = -brush.Height - 1; y <= brush.Height + 1; y++)
-            {
-                for (int x = -brush.Width - 1; x <= brush.Width + 1; x++)
-                {
-                    SetOverlayFrameIndexForTile(cellCoords + new Point2D(x, y));
-                }
-            }
+            UpdateFrameIndexesAroundLine(Helpers.VisualDirectionToPoint(direction));
 
-            MutationTarget.AddRefreshPoint(cellCoords, Math.Max(brush.Width, brush.Height) + 1);
+            MutationTarget.AddRefreshPoint(sourceCoords, length + 2);
         }
     }
 }

@@ -8,7 +8,7 @@ namespace TSMapEditor.Mutations.Classes
     /// <summary>
     /// A mutation that allows placing terrain object collections.
     /// </summary>
-    class PlaceTerrainObjectCollectionMutation : Mutation
+    class PlaceTerrainObjectCollectionMutation : Mutation, ICheckableMutation
     {
         public PlaceTerrainObjectCollectionMutation(IMutationTarget mutationTarget, TerrainObjectCollection terrainObjectCollection, Point2D cellCoords) : base(mutationTarget)
         {
@@ -18,6 +18,12 @@ namespace TSMapEditor.Mutations.Classes
 
         private readonly TerrainObjectCollection terrainObjectCollection;
         private readonly Point2D cellCoords;
+
+        public bool ShouldPerform()
+        {
+            var tile = MutationTarget.Map.GetTile(cellCoords);
+            return tile != null && tile.TerrainObject == null;
+        }
 
         public override string GetDisplayString()
         {

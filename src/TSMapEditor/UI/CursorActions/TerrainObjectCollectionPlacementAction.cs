@@ -1,11 +1,12 @@
 ﻿using System;
 using TSMapEditor.GameMath;
 using TSMapEditor.Models;
+using TSMapEditor.Mutations;
 using TSMapEditor.Mutations.Classes;
 
 namespace TSMapEditor.UI.CursorActions
 {
-    public class TerrainObjectCollectionPlacementAction : CursorAction
+    public class TerrainObjectCollectionPlacementAction : LineAndRegularPaintingAction
     {
         public TerrainObjectCollectionPlacementAction(ICursorActionTarget cursorActionTarget) : base(cursorActionTarget)
         {
@@ -30,8 +31,20 @@ namespace TSMapEditor.UI.CursorActions
             }
         }
 
+        public override void OnActionExit()
+        {
+            ClearLinePreview();
+            base.OnActionExit();
+        }
+
         public override void PreMapDraw(Point2D cellCoords)
         {
+            if (LineSourceCell.HasValue)
+            {
+                ApplyLinePreview(cellCoords);
+                return;
+            }
+
             var cell = CursorActionTarget.Map.GetTile(cellCoords);
             if (cell.TerrainObject == null)
             {
@@ -44,6 +57,12 @@ namespace TSMapEditor.UI.CursorActions
 
         public override void PostMapDraw(Point2D cellCoords)
         {
+            if (LineSourceCell.HasValue)
+            {
+                ClearLinePreview();
+                return;
+            }
+
             var cell = CursorActionTarget.Map.GetTile(cellCoords);
             if (cell.TerrainObject == terrainObject)
             {
@@ -53,16 +72,26 @@ namespace TSMapEditor.UI.CursorActions
             CursorActionTarget.AddRefreshPoint(cellCoords);
         }
 
-        public override void LeftDown(Point2D cellCoords)
-        {
-            var cell = CursorActionTarget.Map.GetTile(cellCoords);
-            if (cell.TerrainObject != null)
-                return;
+        protected override bool CanDrawLinePreview() => _terrainObjectCollection != null;
 
-            var mutation = new PlaceTerrainObjectCollectionMutation(CursorActionTarget.MutationTarget, TerrainObjectCollection, cellCoords);
-            CursorActionTarget.MutationManager.PerformMutation(mutation);
+        protected override ICheckableMutation CreateRegularPlacementMutation(Point2D cellCoords)
+        {
+            return new PlaceTerrainObjectCollectionMutation(CursorActionTarget.MutationTarget, TerrainObjectCollection, cellCoords);
         }
 
-        public override void LeftClick(Point2D cellCoords) => LeftDown(cellCoords);
+        protected override Mutation CreateLinePlacementMutation(Direction direction, int length)
+        {
+            return new PlaceTerrainObjectCollectionLineMutation(MutationTarget, TerrainObjectCollection, LineSourceCell.Value, direction, length);
+        }
+
+        protected override void ApplyLine(Point2D cellCoords)
+        {
+            if (_terrainObjectCollection != null)
+            {
+                (Direction direction, int length) = GetLineInformation(cellCoords);
+                var mutation = CreateLinePlacementMutation(direction, length);
+                PerformMutation(mutation);
+            }
+        }
     }
 }
