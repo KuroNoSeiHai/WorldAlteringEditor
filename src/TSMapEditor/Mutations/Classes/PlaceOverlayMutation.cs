@@ -9,7 +9,7 @@ namespace TSMapEditor.Mutations.Classes
     /// <summary>
     /// A mutation that allows placing regular, individual overlay.
     /// </summary>
-    class PlaceOverlayMutation : Mutation
+    class PlaceOverlayMutation : Mutation, ICheckableMutation
     {
         public PlaceOverlayMutation(IMutationTarget mutationTarget, OverlayType overlayType, int? forcedFrameIndex, Point2D cellCoords) : base(mutationTarget)
         {
@@ -40,6 +40,42 @@ namespace TSMapEditor.Mutations.Classes
                     "Erase overlay at {0} with a brush size of {1}"),
                         cellCoords, brush);
             }
+        }
+
+        public bool ShouldPerform()
+        {
+            return brush.CheckForAnyCellInBrushArea(offset =>
+            {
+                var tile = MutationTarget.Map.GetTile(cellCoords + offset);
+                if (tile == null)
+                    return false;
+
+                if (overlayType == null && tile.Overlay != null)
+                    return true;
+
+                if (overlayType != null)
+                {
+                    if (tile.Overlay == null)
+                    {
+                        return true;
+                    }
+
+                    if (tile.Overlay.OverlayType == overlayType)
+                    {
+                        if (forcedFrameIndex.HasValue)
+                        {
+                            if (tile.Overlay.FrameIndex != forcedFrameIndex.Value)
+                                return true;
+                        }
+                        else if (tile.Overlay.FrameIndex != 0)
+                        {
+                            return true;
+                        }
+                    }
+                }
+
+                return false;
+            });
         }
 
         public override void Perform()

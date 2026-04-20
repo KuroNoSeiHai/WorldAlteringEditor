@@ -12,7 +12,7 @@ namespace TSMapEditor.Mutations
     /// A mutation modifies something in the map in a way that makes the effect
     /// un-doable and re-doable through the Undo/Redo system.
     /// </summary>
-    public abstract class Mutation
+    public abstract class Mutation : IMutation
     {
         public Mutation(IMutationTarget mutationTarget)
         {
@@ -110,7 +110,7 @@ namespace TSMapEditor.Mutations
                 if (otherTile == null)
                     continue;
 
-                int otherTileSetId = map.TheaterInstance.GetTileSetId((usePreview && otherTile.PreviewTileImage != null) ? 
+                int otherTileSetId = map.TheaterInstance.GetTileSetId((usePreview && otherTile.PreviewTileImage != null) ?
                     otherTile.PreviewTileImage.TileID : otherTile.TileIndex);
 
                 if (otherTileSetId != tileSetIndex)

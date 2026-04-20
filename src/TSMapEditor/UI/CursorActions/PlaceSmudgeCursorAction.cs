@@ -87,7 +87,7 @@ namespace TSMapEditor.UI.CursorActions
         {
             Point2D centeredBrushSizeCellCoords = CursorActionTarget.BrushSize.CenterWithinBrush(cellCoords);
 
-            if (!CursorActionTarget.BrushSize.CheckForBrushSize(offset =>
+            if (!CursorActionTarget.BrushSize.CheckForAnyCellInBrushArea(offset =>
             {
                 var cell = CursorActionTarget.Map.GetTile(centeredBrushSizeCellCoords + offset);
                 if (cell == null)

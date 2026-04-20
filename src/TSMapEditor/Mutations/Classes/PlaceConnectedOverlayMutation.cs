@@ -52,7 +52,7 @@ namespace TSMapEditor.Mutations.Classes
     /// <summary>
     /// A mutation that allows placing connected overlays.
     /// </summary>
-    class PlaceConnectedOverlayMutation : ConnectedOverlayMutationBase
+    class PlaceConnectedOverlayMutation : ConnectedOverlayMutationBase, ICheckableMutation
     {
         public PlaceConnectedOverlayMutation(IMutationTarget mutationTarget, ConnectedOverlayType connectedOverlayType, Point2D cellCoords) : base(mutationTarget, connectedOverlayType)
         {
@@ -64,6 +64,8 @@ namespace TSMapEditor.Mutations.Classes
         private readonly Point2D cellCoords;
 
         private OriginalOverlayInfo[] undoData;
+
+        public bool ShouldPerform() => true;
 
         public override string GetDisplayString()
         {

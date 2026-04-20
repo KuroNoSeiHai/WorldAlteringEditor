@@ -1,6 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-using Rampastring.XNAUI;
-using Rampastring.XNAUI.Input;
+﻿using Rampastring.XNAUI.Input;
 using System;
 using System.Collections.Generic;
 using TSMapEditor.GameMath;
@@ -11,7 +9,7 @@ using TSMapEditor.Rendering;
 
 namespace TSMapEditor.UI.CursorActions
 {
-    public class PlaceTerrainCursorAction : CursorAction
+    public class PlaceTerrainCursorAction : LineAndRegularPaintingAction
     {
         public PlaceTerrainCursorAction(ICursorActionTarget cursorActionTarget) : base(cursorActionTarget)
         {
@@ -36,23 +34,10 @@ namespace TSMapEditor.UI.CursorActions
 
         private HashSet<MapTile> previewTiles = new HashSet<MapTile>();
 
-        private Point2D? lineSourceCell;
-        private PlaceTerrainLineMutation placeTerrainLineMutation;
-
-        private bool blocked;
-
-        public override void InactiveUpdate()
-        {
-            lineSourceCell = null;
-            blocked = false;
-
-            if (placeTerrainLineMutation != null)
-                ClearPreview();
-        }
-
         public override void OnActionEnter()
         {
             heightOffset = 0;
+            base.OnActionEnter();
         }
 
         public override void OnActionExit()
@@ -118,63 +103,33 @@ namespace TSMapEditor.UI.CursorActions
                 cell.PreviewLevel = -1;
             }
 
-            if (placeTerrainLineMutation != null)
+            if (LinePreviewMutation != null)
             {
-                placeTerrainLineMutation.Undo();
-                placeTerrainLineMutation = null;
+                LinePreviewMutation.Undo();
+                LinePreviewMutation = null;
             }
 
             previewTiles.Clear();
             CursorActionTarget.InvalidateMap();
         }
 
-        private (Direction direction, Point2D vector, int length) GetLineInformation(Point2D cellCoords)
-        {
-            Direction direction = Helpers.DirectionFromPoints(lineSourceCell.Value, cellCoords);
-            Point2D vector = cellCoords - lineSourceCell.Value;
-            int length = Math.Max(Math.Abs(vector.X), Math.Abs(vector.Y));
-
-            return (direction, vector, length);
-        }
-
-        /// <summary>
-        /// Draws a preview for the line-based terrain placement feature.
-        /// </summary>
-        public override void DrawPreview(Point2D cellCoords, Point2D cameraTopLeftPoint)
-        {
-            if (!lineSourceCell.HasValue)
-                return;
-
-            if (cellCoords == lineSourceCell.Value)
-                return;
-
-            (Direction direction, Point2D vector, int length) = GetLineInformation(cellCoords);
-
-            Point2D cameraPoint1 = (CellMath.CellCenterPointFromCellCoords_3D(lineSourceCell.Value, Map) - cameraTopLeftPoint).ScaleBy(CursorActionTarget.Camera.ZoomLevel);
-            Point2D cameraPoint2 = (CellMath.CellCenterPointFromCellCoords_3D(lineSourceCell.Value + Helpers.VisualDirectionToPoint(direction).ScaleBy(length), Map) - cameraTopLeftPoint).ScaleBy(CursorActionTarget.Camera.ZoomLevel);
-
-            Renderer.DrawLine(cameraPoint1.ToXNAVector(), cameraPoint2.ToXNAVector(), Color.Orange, 2);
-        }
-
-        private void ApplyLinePreview(Point2D cellCoords)
+        private void ApplyTerrainLinePreview(Point2D cellCoords)
         {
             Point2D adjustedCellCoords = GetAdjustedCellCoords(cellCoords);
 
             MapTile originTile = CursorActionTarget.Map.GetTile(cellCoords);
 
             Direction direction;
-            Point2D vector;
             int length;
 
-            if (lineSourceCell.Value == adjustedCellCoords)
+            if (LineSourceCell.Value == adjustedCellCoords)
             {
                 direction = default;
-                vector = default;
                 length = 1;
             }
             else
             {
-                (direction, vector, length) = GetLineInformation(adjustedCellCoords);
+                (direction, length) = GetLineInformation(adjustedCellCoords);
             }
 
             if (length < 2)
@@ -194,8 +149,8 @@ namespace TSMapEditor.UI.CursorActions
             }
             else
             {
-                placeTerrainLineMutation = new PlaceTerrainLineMutation(MutationTarget, Map.GetTile(lineSourceCell.Value), direction, length, Tile);
-                placeTerrainLineMutation.Perform();
+                LinePreviewMutation = new PlaceTerrainLineMutation(MutationTarget, Map.GetTile(LineSourceCell.Value), direction, length, Tile);
+                LinePreviewMutation.Perform();
             }
         }
 
@@ -204,9 +159,9 @@ namespace TSMapEditor.UI.CursorActions
             if (Tile == null)
                 return;
 
-            if (lineSourceCell.HasValue)
+            if (LineSourceCell.HasValue)
             {
-                ApplyLinePreview(cellCoords);
+                ApplyTerrainLinePreview(cellCoords);
                 return;
             }
 
@@ -309,86 +264,100 @@ namespace TSMapEditor.UI.CursorActions
             CursorActionTarget.AddRefreshPoint(adjustedCellCoords, Math.Max(Tile.Width, Tile.Height) * Math.Max(brush.Width, brush.Height) + 1);
         }
 
+        protected override bool CanDrawLinePreview() => Tile != null;
+
+        protected override ICheckableMutation CreateRegularPlacementMutation(Point2D cellCoords)
+        {
+            return new PlaceTerrainTileMutation(CursorActionTarget.MutationTarget, cellCoords, Tile, heightOffset);
+        }
+
+        protected override Mutation CreateLinePlacementMutation(Direction direction, int length)
+        {
+            return new PlaceTerrainLineMutation(MutationTarget, Map.GetTile(LineSourceCell.Value), direction, length, Tile);
+        }
+
+        protected override void ApplyLine(Point2D cellCoords)
+        {
+            (Direction direction, int length) = GetLineInformation(cellCoords);
+            var mutation = CreateLinePlacementMutation(direction, length);
+            PerformMutation(mutation);
+        }
+
         public override void LeftDown(Point2D cellCoords)
         {
             if (Tile == null)
                 return;
 
-            if (blocked)
+            if (Blocked)
                 return;
 
             Point2D adjustedCellCoords = GetAdjustedCellCoords(cellCoords);
 
-            Mutation mutation = null;
-
-            if (KeyboardCommands.Instance.FillTerrain.AreKeysOrModifiersDown(Keyboard)
-                && (Tile.Width == 1 && Tile.Height == 1))
+            if (KeyboardCommands.Instance.PlaceTerrainLine.AreKeysOrModifiersDown(Keyboard))
             {
                 var targetCell = CursorActionTarget.Map.GetTile(adjustedCellCoords);
 
-                if (targetCell != null)
+                if (LineSourceCell == null && targetCell != null)
                 {
-                    mutation = new FillTerrainAreaMutation(CursorActionTarget.MutationTarget, targetCell, Tile);
-                }
-            }
-            else if (KeyboardCommands.Instance.PlaceTerrainLine.AreKeysOrModifiersDown(Keyboard))
-            {
-                var targetCell = CursorActionTarget.Map.GetTile(adjustedCellCoords);
-
-                if (lineSourceCell == null && targetCell != null)
-                {
-                    lineSourceCell = adjustedCellCoords;
+                    LineSourceCell = adjustedCellCoords;
+                    PreviousCellCoords = adjustedCellCoords;
                 }
 
                 return;
             }
-            else
+
+            if (PreviousCellCoords != cellCoords)
             {
-                mutation = new PlaceTerrainTileMutation(CursorActionTarget.MutationTarget, adjustedCellCoords, Tile, heightOffset);
+                if (KeyboardCommands.Instance.FillTerrain.AreKeysOrModifiersDown(Keyboard)
+                    && (Tile.Width == 1 && Tile.Height == 1))
+                {
+                    var targetCell = CursorActionTarget.Map.GetTile(adjustedCellCoords);
+
+                    if (targetCell != null)
+                    {
+                        var mutation = new FillTerrainAreaMutation(CursorActionTarget.MutationTarget, targetCell, Tile);
+                        CursorActionTarget.MutationManager.PerformMutation(mutation);
+                        PreviousCellCoords = cellCoords;
+                    }
+
+                    return;
+                }
+
+                var tileMutation = new PlaceTerrainTileMutation(CursorActionTarget.MutationTarget, adjustedCellCoords, Tile, heightOffset);
+                CursorActionTarget.MutationManager.PerformMutation(tileMutation);
+                PreviousCellCoords = cellCoords;
             }
-
-            CursorActionTarget.MutationManager.PerformMutation(mutation);
-        }
-
-        private void ApplyTerrainLine(Point2D cellCoords)
-        {
-            Direction direction = Helpers.DirectionFromPoints(lineSourceCell.Value, cellCoords);
-            Point2D vector = cellCoords - lineSourceCell.Value;
-            int length = Math.Max(Math.Abs(vector.X), Math.Abs(vector.Y));
-            var mutation = new PlaceTerrainLineMutation(MutationTarget, Map.GetTile(lineSourceCell.Value), direction, length, Tile);
-            PerformMutation(mutation);
-            lineSourceCell = null;
         }
 
         public override void LeftClick(Point2D cellCoords)
         {
             if (KeyboardCommands.Instance.PlaceTerrainLine.AreKeysOrModifiersDown(Keyboard))
             {
-                if (lineSourceCell != null && cellCoords != lineSourceCell.Value)
+                if (LineSourceCell != null && cellCoords != LineSourceCell.Value)
                 {
-                    ApplyTerrainLine(GetAdjustedCellCoords(cellCoords));
+                    ApplyLineInternal(GetAdjustedCellCoords(cellCoords));
                 }
 
                 return;
             }
 
             LeftDown(cellCoords);
-            blocked = false;
+            Blocked = false;
         }
 
         public override void Update(Point2D? cellCoords)
         {
-            if (lineSourceCell != null && cellCoords != null && lineSourceCell != cellCoords)
+            if (LineSourceCell != null && cellCoords != null && LineSourceCell != cellCoords)
             {
                 if (!KeyboardCommands.Instance.PlaceTerrainLine.AreKeysOrModifiersDown(Keyboard))
                 {
-                    ApplyTerrainLine(GetAdjustedCellCoords(cellCoords.Value));
-                    blocked = true;
+                    ApplyLineInternal(GetAdjustedCellCoords(cellCoords.Value));
+                    Blocked = true;
                 }
             }
 
             if (!CursorActionTarget.WindowManager.Cursor.LeftDown && !CursorActionTarget.WindowManager.Cursor.LeftClicked)
-                blocked = false;
+                Blocked = false;
         }
     }
 }

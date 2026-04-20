@@ -10,7 +10,7 @@ namespace TSMapEditor.Mutations.Classes
     /// <summary>
     /// A mutation that places a terrain tile on the map.
     /// </summary>
-    public class PlaceTerrainTileMutation : Mutation
+    public class PlaceTerrainTileMutation : Mutation, ICheckableMutation
     {
         public PlaceTerrainTileMutation(IMutationTarget mutationTarget, Point2D targetCellCoords, TileImage tile, int heightOffset) : base(mutationTarget)
         {
@@ -28,6 +28,8 @@ namespace TSMapEditor.Mutations.Classes
         private List<OriginalCellTerrainData> undoData;
 
         private static readonly Point2D[] surroundingTiles = new Point2D[] { new Point2D(-1, 0), new Point2D(1, 0), new Point2D(0, -1), new Point2D(0, 1) };
+
+        public bool ShouldPerform() => true;
 
         public override string GetDisplayString()
         {

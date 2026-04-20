@@ -22,9 +22,9 @@ namespace TSMapEditor.UI
             DoForArea(0, 0, Height, Width, action);
         }
 
-        public bool CheckForBrushSize(Func<Point2D, bool> checker)
+        public bool CheckForAnyCellInBrushArea(Func<Point2D, bool> checker)
         {
-            return CheckForAnyInArea(0, 0, Height, Width, checker);
+            return CheckForAnyCellInArea(0, 0, Height, Width, checker);
         }
 
         public void DoForBrushSizeAndSurroundings(Action<Point2D> action)
@@ -43,7 +43,7 @@ namespace TSMapEditor.UI
             }
         }
 
-        private bool CheckForAnyInArea(int initY, int initX, int height, int width, Func<Point2D, bool> checker)
+        private bool CheckForAnyCellInArea(int initY, int initX, int height, int width, Func<Point2D, bool> checker)
         {
             for (int y = initY; y < height; y++)
             {

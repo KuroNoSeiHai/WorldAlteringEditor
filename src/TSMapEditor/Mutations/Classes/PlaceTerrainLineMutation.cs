@@ -90,6 +90,8 @@ namespace TSMapEditor.Mutations.Classes
 
         public override void Perform()
         {
+            undoData.Clear();
+
             int processedLength = 0;
             while (processedLength <= length)
             {
