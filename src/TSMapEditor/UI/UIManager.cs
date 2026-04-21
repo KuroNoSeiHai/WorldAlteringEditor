@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Rampastring.Tools;
 using Rampastring.XNAUI;
 using Rampastring.XNAUI.XNAControls;
 using System;
@@ -407,6 +408,8 @@ namespace TSMapEditor.UI
 
             if (issues.Count > 0)
             {
+                Logger.Log("List of map issues:" + Environment.NewLine + string.Join(Environment.NewLine, issues));
+
                 if (issues.Count > 10)
                     issues = issues.Take(10).ToList();
 

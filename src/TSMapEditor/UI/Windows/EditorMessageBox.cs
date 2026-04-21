@@ -186,14 +186,24 @@ namespace TSMapEditor.UI.Windows
         /// <param name="caption">The caption/header of the message box.</param>
         /// <param name="description">The description of the message box.</param>
         /// <param name="messageBoxButtons">Specifies what buttons the message box should include.</param>
-        public static EditorMessageBox Show(WindowManager windowManager, string caption, string description, MessageBoxButtons messageBoxButtons)
+        public static EditorMessageBox Show(WindowManager windowManager, string caption, string description, MessageBoxButtons messageBoxButtons, bool darken = true)
         {
             var msgBox = new EditorMessageBox(windowManager,
                 Renderer.GetSafeString(caption, 1),
                 Renderer.FixText(Renderer.GetSafeString(description, 0), 0, windowManager.RenderResolutionX).Text,
                 messageBoxButtons);
 
-            DarkeningPanel.AddAndInitializeWithControl(windowManager, msgBox, true);
+            if (darken)
+            {
+                DarkeningPanel.AddAndInitializeWithControl(windowManager, msgBox, true);
+            }
+            else
+            {
+                msgBox.DrawOrder = int.MaxValue;
+                msgBox.UpdateOrder = int.MaxValue;
+                windowManager.AddAndInitializeControl(msgBox);
+            }
+
             return msgBox;
         }
     }
