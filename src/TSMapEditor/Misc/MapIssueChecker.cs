@@ -40,12 +40,15 @@ namespace TSMapEditor.Misc
                                 cell.CoordsToPoint()));
                     }
 
-                    // Check for tiberium on ramps that don't support tiberium on them
-                    if (subTile.TmpImage.RampType > RampType.South)
+                    if (!Constants.IsRA2YR)
                     {
-                        issueList.Add(string.Format(Translate(map, "CheckForIssues.TiberiumUnsupportedRamp",
-                            "Cell at {0} has Tiberium on a ramp that does not allow Tiberium on it. This can crash the game!"),
-                                cell.CoordsToPoint()));
+                        // Check for tiberium on ramps that don't support tiberium on them
+                        if (subTile.TmpImage.RampType > RampType.South)
+                        {
+                            issueList.Add(string.Format(Translate(map, "CheckForIssues.TiberiumUnsupportedRamp",
+                                "Cell at {0} has Tiberium on a ramp that does not allow Tiberium on it. This can crash the game!"),
+                                    cell.CoordsToPoint()));
+                        }
                     }
                 }
             });
