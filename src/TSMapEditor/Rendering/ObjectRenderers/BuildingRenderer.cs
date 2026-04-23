@@ -324,8 +324,6 @@ namespace TSMapEditor.Rendering.ObjectRenderers
             int frameCount = drawParams.ShapeImage == null ? 0 : drawParams.ShapeImage.GetFrameCount();
             int frameIndex = gameObject.GetFrameIndex(frameCount);
 
-            float depthAddition = Constants.DepthEpsilon * ObjectDepthAdjustments.Building;
-
             // Form the anims list
             animationList.Clear();
             animationList.AddRange(gameObject.Anims);
@@ -335,7 +333,7 @@ namespace TSMapEditor.Rendering.ObjectRenderers
 
             // Sort the anims according to their settings
             animationList.Sort((anim1, anim2) =>
-                anim1.BuildingAnimDrawConfig.SortValue(anim1.AnimType.ArtConfig.YSortAdjust).CompareTo(anim2.BuildingAnimDrawConfig.SortValue(anim2.AnimType.ArtConfig.YSortAdjust)));
+                anim1.BuildingAnimDrawConfig.SortValue(anim1.AnimType.ArtConfig).CompareTo(anim2.BuildingAnimDrawConfig.SortValue(anim2.AnimType.ArtConfig)));
 
             bool affectedByAmbient = !affectedByLighting;
 
@@ -344,7 +342,7 @@ namespace TSMapEditor.Rendering.ObjectRenderers
             {
                 var anim = animationList[i];
 
-                if (anim.BuildingAnimDrawConfig.SortValue(anim.AnimType.ArtConfig.YSortAdjust) < 0)
+                if (anim.BuildingAnimDrawConfig.SortValue(anim.AnimType.ArtConfig) < 0)
                 {
                     var animShape = TheaterGraphics.AnimTextures[anim.AnimType.Index];
                     if (animShape != null)
@@ -377,7 +375,7 @@ namespace TSMapEditor.Rendering.ObjectRenderers
             {
                 var anim = animationList[i];
 
-                if (anim.BuildingAnimDrawConfig.SortValue(anim.AnimType.ArtConfig.YSortAdjust) >= 0)
+                if (anim.BuildingAnimDrawConfig.SortValue(anim.AnimType.ArtConfig) >= 0)
                 {
                     // It gets challenging to handle depth if the anim renderer draws anims that are "above" the building, 
                     // as it does not have proper context of the building it's drawing on.

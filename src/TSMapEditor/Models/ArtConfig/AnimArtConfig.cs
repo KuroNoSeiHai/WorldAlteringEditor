@@ -1,4 +1,6 @@
 using Rampastring.Tools;
+using System;
+using TSMapEditor.CCEngine;
 
 namespace TSMapEditor.Models.ArtConfig
 {
@@ -18,6 +20,7 @@ namespace TSMapEditor.Models.ArtConfig
         public bool Shadow { get; set; }
         public int Start { get; set; }
         public int Translucency { get; set; }
+        public LayerType Layer { get; set; } // Vinifera
 
         /// <summary>
         /// Only used on building and tile animations, setting it to false makes them draw
@@ -50,6 +53,7 @@ namespace TSMapEditor.Models.ArtConfig
             Shadow = iniSection.GetBooleanValue(nameof(Shadow), Shadow);
             Start = iniSection.GetIntValue(nameof(Start), Start);
             Translucency = iniSection.GetIntValue(nameof(Translucency), Translucency);
+            Layer = Enum.Parse<LayerType>(iniSection.GetStringValue(nameof(Layer), Layer.ToString()), true);
         }
     }
 }
