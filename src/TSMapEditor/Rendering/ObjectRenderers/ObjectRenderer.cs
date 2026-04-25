@@ -4,7 +4,6 @@ using Rampastring.XNAUI;
 using System;
 using TSMapEditor.CCEngine;
 using TSMapEditor.GameMath;
-using TSMapEditor.Initialization;
 using TSMapEditor.Models;
 
 namespace TSMapEditor.Rendering.ObjectRenderers

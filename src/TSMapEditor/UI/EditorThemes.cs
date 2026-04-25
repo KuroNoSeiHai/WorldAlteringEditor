@@ -1,8 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Rampastring.Tools;
 using Rampastring.XNAUI;
-using System;
 using System.Collections.Generic;
 
 namespace TSMapEditor.UI

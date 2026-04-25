@@ -1,7 +1,5 @@
-﻿using SharpDX.Direct2D1.Effects;
-using System;
+﻿using System;
 using TSMapEditor.GameMath;
-using TSMapEditor.UI;
 
 namespace TSMapEditor.Rendering
 {

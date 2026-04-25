@@ -1,11 +1,9 @@
-﻿using Microsoft.Xna.Framework;
-using Rampastring.XNAUI;
+﻿using Rampastring.XNAUI;
 using Rampastring.XNAUI.XNAControls;
 using System;
 using System.Collections.Generic;
 using TSMapEditor.CCEngine;
 using TSMapEditor.Models;
-using TSMapEditor.Models.Enums;
 
 namespace TSMapEditor.UI.Windows
 {

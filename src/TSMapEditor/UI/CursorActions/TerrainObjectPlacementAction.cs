@@ -1,5 +1,4 @@
-﻿using System;
-using TSMapEditor.GameMath;
+﻿using TSMapEditor.GameMath;
 using TSMapEditor.Models;
 using TSMapEditor.Mutations;
 using TSMapEditor.Mutations.Classes;

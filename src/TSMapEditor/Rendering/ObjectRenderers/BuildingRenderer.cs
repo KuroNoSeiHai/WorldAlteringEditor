@@ -1,4 +1,3 @@
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 using TSMapEditor.CCEngine;

@@ -1,7 +1,5 @@
-﻿using Microsoft.VisualBasic.Logging;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Rampastring.Tools;
 using System;
 using System.Collections.Generic;
 

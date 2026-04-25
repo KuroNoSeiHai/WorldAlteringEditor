@@ -1,5 +1,4 @@
 ﻿using Microsoft.Xna.Framework;
-using TSMapEditor.CCEngine;
 using TSMapEditor.GameMath;
 using TSMapEditor.Models.ArtConfig;
 
