@@ -42,7 +42,8 @@ namespace TSMapEditor.UI.CursorActions
         private int[][] pathfindingGoalScore;
         private bool[][] pathfindingClosedNodes;
         private bool[][] pathfindingOpenedNodes;
-        private List<Point2D> openSet;
+        private PriorityQueue<Point2D, (int GoalScore, int HeuristicScore, int InsertOrder)> openSet;
+        private int openSetInsertOrder;
 
         private bool pathfindingInitialized = false;
         private bool isInfantry = false;
@@ -178,7 +179,7 @@ namespace TSMapEditor.UI.CursorActions
             pathfindingGoalScore = new int[MaxMapCoord][];
             pathfindingClosedNodes = new bool[MaxMapCoord][];
             pathfindingOpenedNodes = new bool[MaxMapCoord][];
-            openSet = new List<Point2D>(1000);
+            openSet = new PriorityQueue<Point2D, (int GoalScore, int HeuristicScore, int InsertOrder)>();
 
             for (int y = 0; y < MaxMapCoord; y++)
             {
@@ -300,26 +301,18 @@ namespace TSMapEditor.UI.CursorActions
 
             while (openSet.Count > 0)
             {
-                Point2D current = Point2D.NegativeOne;
-                int lowestScore = int.MaxValue;
+                Point2D current = openSet.Dequeue();
 
-                foreach (var location in openSet)
-                {
-                    int score = pathfindingScore[location.Y][location.X];
-                    if (score < lowestScore)
-                    {
-                        current = location;
-                        lowestScore = score;
-                    }
-                }
+                if (pathfindingClosedNodes[current.Y][current.X])
+                    continue;
+
+                pathfindingOpenedNodes[current.Y][current.X] = false;
 
                 if (current == end)
                 {
                     return AStar_ReconstructPath(current);
                 }
 
-                pathfindingOpenedNodes[current.Y][current.X] = false;
-                openSet.Remove(current);
                 pathfindingClosedNodes[current.Y][current.X] = true;
 
                 // Check surrounding 8 tiles from the current tile
@@ -348,19 +341,17 @@ namespace TSMapEditor.UI.CursorActions
                     if (advancedAllowanceCheckerFunction != null && !advancedAllowanceCheckerFunction(current, neighbor))
                         continue;
 
-                    if (!pathfindingOpenedNodes[neighbor.Y][neighbor.X])
-                    {
-                        pathfindingOpenedNodes[neighbor.Y][neighbor.X] = true;
-                        openSet.Add(neighbor);
-                    }
-
                     int tentativeScore = pathfindingScore[current.Y][current.X] + accessibleCache[neighbor.Y][neighbor.X];
                     if (tentativeScore >= pathfindingScore[neighbor.Y][neighbor.X])
                         continue; // This is not a better path
 
+                    int heuristicScore = neighbor.DistanceTo(end);
                     pathfindingMostEfficient[neighbor.Y][neighbor.X] = current;
                     pathfindingScore[neighbor.Y][neighbor.X] = tentativeScore;
-                    pathfindingGoalScore[neighbor.Y][neighbor.X] = tentativeScore + neighbor.DistanceTo(end);
+                    pathfindingGoalScore[neighbor.Y][neighbor.X] = tentativeScore + heuristicScore;
+                    pathfindingOpenedNodes[neighbor.Y][neighbor.X] = true;
+                    openSet.Enqueue(neighbor, (pathfindingGoalScore[neighbor.Y][neighbor.X], heuristicScore, openSetInsertOrder));
+                    openSetInsertOrder++;
                 }
             }
 
@@ -376,7 +367,7 @@ namespace TSMapEditor.UI.CursorActions
             }
 
             openSet.Clear();
-            openSet.Add(start);
+            openSetInsertOrder = 0;
 
             for (int y = 0; y < pathfindingScore.Length; y++)
             {
@@ -395,6 +386,7 @@ namespace TSMapEditor.UI.CursorActions
             pathfindingScore[start.Y][start.X] = 0;
             pathfindingGoalScore[start.Y][start.X] = start.DistanceTo(end);
             pathfindingOpenedNodes[start.Y][start.X] = true;
+            openSet.Enqueue(start, (pathfindingGoalScore[start.Y][start.X], pathfindingGoalScore[start.Y][start.X], openSetInsertOrder++));
 
             switch (movementZone)
             {
