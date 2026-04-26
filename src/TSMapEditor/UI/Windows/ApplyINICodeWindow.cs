@@ -82,6 +82,8 @@ namespace TSMapEditor.UI.Windows
                 Translate(this, "CodeApplied.Title", "Code Applied"),
                 successMessage, 
                 MessageBoxButtons.OK);
+
+            map.ReinitializeLighting();
         }
 
         public void Open()
