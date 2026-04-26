@@ -20,7 +20,7 @@ namespace TSMapEditor.Models
 
         public void WriteToIniSection(IniSection iniSection)
         {
-            iniSection.SetStringValue(ID, $"{Repeating},{Name},{Trigger.ID}");
+            iniSection.SetStringValue(ID, $"{Repeating},{Name},{(Trigger != null ? Trigger.ID : Constants.NoneValue1)}");
         }
 
         public string GetDisplayString() => Name + " (" + ID + ")";
@@ -28,11 +28,11 @@ namespace TSMapEditor.Models
         public void Serialize(MemoryStream memoryStream)
         {
             StreamHelpers.WriteUnicodeString(memoryStream, Name);
-            StreamHelpers.WriteInt(memoryStream, Repeating);            
+            StreamHelpers.WriteInt(memoryStream, Repeating);
         }
 
         public void Deserialize(MemoryStream memoryStream)
-        {   
+        {
             Name = StreamHelpers.ReadUnicodeString(memoryStream);
             Repeating = StreamHelpers.ReadInt(memoryStream);
         }
