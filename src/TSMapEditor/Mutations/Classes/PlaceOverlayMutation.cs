@@ -71,7 +71,11 @@ namespace TSMapEditor.Mutations.Classes
                         {
                             return true;
                         }
+
+                        return false;
                     }
+
+                    return true;
                 }
 
                 return false;
