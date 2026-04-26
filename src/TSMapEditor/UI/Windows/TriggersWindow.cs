@@ -779,8 +779,15 @@ namespace TSMapEditor.UI.Windows
             }
 
             // Check other triggers to see whether this trigger is referenced by them
+            bool selfReference = false;
             var allReferringTriggers = map.Triggers.FindAll(trig =>
             {
+                if (trig == editedTrigger)
+                {
+                    selfReference = true;
+                    return false;
+                }
+
                 foreach (var triggerAction in trig.Actions)
                 {
                     if (!map.EditorConfig.TriggerEventTypes.ContainsKey(triggerAction.ActionIndex))
@@ -808,6 +815,13 @@ namespace TSMapEditor.UI.Windows
             {
                 stringBuilder.Append(Translate(this, "TriggerReferences", "The trigger is referenced by the following other triggers:"));
                 allReferringTriggers.ForEach(trig => stringBuilder.Append(Environment.NewLine + string.Format(Translate(this, "TriggerReference", "    - {0} ({1})"), trig.Name, trig.ID)));
+                stringBuilder.Append(Environment.NewLine);
+                stringBuilder.Append(Environment.NewLine);
+            }
+
+            if (selfReference)
+            {
+                stringBuilder.Append(Translate(this, "SelfReference", "The trigger is referenced by one or more of its own actions."));
                 stringBuilder.Append(Environment.NewLine);
                 stringBuilder.Append(Environment.NewLine);
             }
