@@ -278,7 +278,8 @@ namespace TSMapEditor.UI.CursorActions
 
         protected override void ApplyLine(Point2D cellCoords)
         {
-            (Direction direction, int length) = GetLineInformation(cellCoords);
+            var adjustedCellCoords = GetAdjustedCellCoords(cellCoords);
+            (Direction direction, int length) = GetLineInformation(adjustedCellCoords);
             var mutation = CreateLinePlacementMutation(direction, length);
             PerformMutation(mutation);
         }
@@ -327,37 +328,6 @@ namespace TSMapEditor.UI.CursorActions
                 CursorActionTarget.MutationManager.PerformMutation(tileMutation);
                 PreviousCellCoords = cellCoords;
             }
-        }
-
-        public override void LeftClick(Point2D cellCoords)
-        {
-            if (KeyboardCommands.Instance.PlaceTerrainLine.AreKeysOrModifiersDown(Keyboard))
-            {
-                if (LineSourceCell != null && cellCoords != LineSourceCell.Value)
-                {
-                    ApplyLineInternal(GetAdjustedCellCoords(cellCoords));
-                }
-
-                return;
-            }
-
-            LeftDown(cellCoords);
-            Blocked = false;
-        }
-
-        public override void Update(Point2D? cellCoords)
-        {
-            if (LineSourceCell != null && cellCoords != null && LineSourceCell != cellCoords)
-            {
-                if (!KeyboardCommands.Instance.PlaceTerrainLine.AreKeysOrModifiersDown(Keyboard))
-                {
-                    ApplyLineInternal(GetAdjustedCellCoords(cellCoords.Value));
-                    Blocked = true;
-                }
-            }
-
-            if (!CursorActionTarget.WindowManager.Cursor.LeftDown && !CursorActionTarget.WindowManager.Cursor.LeftClicked)
-                Blocked = false;
         }
     }
 }

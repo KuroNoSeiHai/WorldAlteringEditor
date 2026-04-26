@@ -476,9 +476,9 @@ namespace TSMapEditor.UI
             {
                 if (Cursor.LeftDown)
                 {
-                    if (leftPressedDownOnControl && tileUnderCursor != null)
+                    if (leftPressedDownOnControl && tileUnderCursor != null && CursorAction.OnlyUniqueCellEvents)
                     {
-                        if (lastTileUnderCursor != tileUnderCursor || !CursorAction.OnlyUniqueCellEvents)
+                        if (lastTileUnderCursor != tileUnderCursor)
                             CursorAction.LeftDown(tileUnderCursor.CoordsToPoint());
 
                         lastTileUnderCursor = tileUnderCursor;
@@ -660,6 +660,9 @@ namespace TSMapEditor.UI
                     if (CursorAction != null)
                     {
                         CursorAction.Update(tileUnderCursor.CoordsToPoint());
+
+                        if (Cursor.LeftDown && !CursorAction.OnlyUniqueCellEvents)
+                            CursorAction.LeftDown(tileUnderCursor.CoordsToPoint());
                     }
                 }
             }
