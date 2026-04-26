@@ -353,6 +353,7 @@ namespace TSMapEditor.UI.Windows
                 window.InteractedWith -= Window_HandleFocusSwitch;
                 RemoveFocusSwitchHandlerFromChildrenRecursive(window, window);
                 window.Kill();
+                windowParentControl.RemoveChild(window);
             }
         }
 
