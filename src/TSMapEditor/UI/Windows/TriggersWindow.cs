@@ -782,12 +782,6 @@ namespace TSMapEditor.UI.Windows
             bool selfReference = false;
             var allReferringTriggers = map.Triggers.FindAll(trig =>
             {
-                if (trig == editedTrigger)
-                {
-                    selfReference = true;
-                    return false;
-                }
-
                 foreach (var triggerAction in trig.Actions)
                 {
                     if (!map.EditorConfig.TriggerEventTypes.ContainsKey(triggerAction.ActionIndex))
@@ -800,6 +794,12 @@ namespace TSMapEditor.UI.Windows
                         string paramValue = triggerAction.Parameters[i];
                         if (actionType.Parameters[i].TriggerParamType == TriggerParamType.Trigger && paramValue == editedTrigger.ID)
                         {
+                            if (trig == editedTrigger)
+                            {
+                                selfReference = true;
+                                return false;
+                            }
+
                             return true;
                         }
                     }
