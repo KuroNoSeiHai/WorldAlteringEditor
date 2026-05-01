@@ -139,7 +139,7 @@ namespace TSMapEditor.UI.TopBar
                 if (cliffCount == 1)
                 {
                     editContextMenu.AddItem(Translate(this, "Edit.DrawConnectedTiles", "Draw Connected Tiles"), () => mapUI.EditorState.CursorAction =
-                        new DrawCliffCursorAction(mapUI, theaterMatchingCliffs[0]), null, null, null);
+                        new DrawConnectedTilesCursorAction(mapUI, theaterMatchingCliffs[0]), null, null, null);
                 }
                 else
                 {
@@ -450,7 +450,7 @@ namespace TSMapEditor.UI.TopBar
 
         private void SelectConnectedTileWindow_ObjectSelected(object sender, EventArgs e)
         {
-            mapUI.EditorState.CursorAction = new DrawCliffCursorAction(mapUI, windowController.SelectConnectedTileWindow.SelectedObject);
+            mapUI.EditorState.CursorAction = new DrawConnectedTilesCursorAction(mapUI, windowController.SelectConnectedTileWindow.SelectedObject);
         }
 
         private void Open()

@@ -128,6 +128,20 @@ namespace TSMapEditor.GameMath
             return Math.Max(Math.Abs(X - other.X), Math.Abs(Y - other.Y));
         }
 
+        public bool IsInStraightLineWith(Point2D other)
+        {
+            if (X == other.X)
+                return true;
+
+            if (Y == other.Y)
+                return true;
+
+            if (Math.Abs(other.X - X) == Math.Abs(other.Y - Y))
+                return true;
+
+            return false;
+        }
+
         public Point2D ScaleBy(double scale) => new Point2D((int)(X * scale), (int)(Y * scale));
 
         public Point2D ScaleBy(float scale) => new Point2D((int)(X * scale), (int)(Y * scale));

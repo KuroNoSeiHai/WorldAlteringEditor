@@ -12,11 +12,11 @@ namespace TSMapEditor.UI.CursorActions
     /// <summary>
     /// Cursor action for placing bridges.
     /// </summary>
-    public class DrawCliffCursorAction : CursorAction
+    public class DrawConnectedTilesCursorAction : CursorAction
     {
-        public DrawCliffCursorAction(ICursorActionTarget cursorActionTarget, CliffType cliffType) : base(cursorActionTarget)
+        public DrawConnectedTilesCursorAction(ICursorActionTarget cursorActionTarget, ConnectedTileType connectedTileType) : base(cursorActionTarget)
         {
-            this.cliffType = cliffType;
+            this.connectedTileType = connectedTileType;
             ActionExited += UndoOnExit;
         }
 
@@ -26,33 +26,34 @@ namespace TSMapEditor.UI.CursorActions
 
         public override bool DrawCellCursor => true;
 
-        private readonly CliffType cliffType;
+        private readonly ConnectedTileType connectedTileType;
 
-        private List<Point2D> cliffPath;
-        private CliffSide cliffSide = CliffSide.Front;
-        private DrawCliffMutation previewMutation;
+        private List<Point2D> connectedTilePath;
+        private ConnectedTileSide connectedTileSide = ConnectedTileSide.Front;
+        private DrawConnectedTilesMutation previewMutation;
         private byte extraHeight = 0;
 
-        private readonly int randomSeed = new Random().Next();
+        private int randomSeed = new Random().Next();
 
         public override void OnActionEnter()
         {
-            cliffPath = new List<Point2D>();
+            connectedTilePath = new List<Point2D>();
 
             base.OnActionEnter();
         }
 
         public override void DrawPreview(Point2D cellCoords, Point2D cameraTopLeftPoint)
         {
-            string mainText = Translate("MainText", "Click on a cell to place a new vertex.\r\n\r\n" +
+            string mainText = Translate("MainText.V2", "Click on a cell to place a new vertex.\r\n\r\n" +
                 "ENTER to confirm\r\n" +
-                "Backspace to go back one step\r\n");
+                "Backspace to go back one step\r\n" +
+                "R to re-generate the pattern\r\n");
 
             string tabText = Translate("TabText", "TAB to toggle between front and back sides\r\n");
             string pageUpDownText = Translate("PageUpDownText", "PageUp to raise the tiles, PageDown to lower them\r\n");
             string exitText = Translate("ExitText", "Right-click or ESC to exit");
 
-            string text = (Constants.IsFlatWorld, cliffType.FrontOnly) switch
+            string text = (Constants.IsFlatWorld, connectedTileType.FrontOnly) switch
             {
                 (true, true) => mainText + exitText,
                 (true, false) => mainText + tabText + exitText,
@@ -64,9 +65,9 @@ namespace TSMapEditor.UI.CursorActions
 
             Func<Point2D, Map, Point2D> getCellCenterPoint = Is2DMode ? CellMath.CellCenterPointFromCellCoords : CellMath.CellCenterPointFromCellCoords_3D;
 
-            if (cliffPath.Count > 0)
+            if (connectedTilePath.Count > 0)
             {
-                Point2D start = cliffPath[0];
+                Point2D start = connectedTilePath[0];
                 start = getCellCenterPoint(start, CursorActionTarget.Map) - cameraTopLeftPoint;
                 start = start.ScaleBy(CursorActionTarget.Camera.ZoomLevel);
 
@@ -77,13 +78,13 @@ namespace TSMapEditor.UI.CursorActions
             }
 
             // Draw cliff path
-            for (int i = 0; i < cliffPath.Count - 1; i++)
+            for (int i = 0; i < connectedTilePath.Count - 1; i++)
             {
-                Point2D start = cliffPath[i];
+                Point2D start = connectedTilePath[i];
                 start = getCellCenterPoint(start, CursorActionTarget.Map) - cameraTopLeftPoint;
                 start = start.ScaleBy(CursorActionTarget.Camera.ZoomLevel);
 
-                Point2D end = cliffPath[i + 1];
+                Point2D end = connectedTilePath[i + 1];
                 end = getCellCenterPoint(end, CursorActionTarget.Map) - cameraTopLeftPoint;
                 end = end.ScaleBy(CursorActionTarget.Camera.ZoomLevel);
 
@@ -105,9 +106,9 @@ namespace TSMapEditor.UI.CursorActions
             }
             else if (e.PressedKey == Microsoft.Xna.Framework.Input.Keys.Tab)
             {
-                if (!cliffType.FrontOnly)
+                if (!connectedTileType.FrontOnly)
                 {
-                    cliffSide = cliffSide == CliffSide.Front ? CliffSide.Back : CliffSide.Front;
+                    connectedTileSide = connectedTileSide == ConnectedTileSide.Front ? ConnectedTileSide.Back : ConnectedTileSide.Front;
                     RedrawPreview();
                 }
 
@@ -115,10 +116,20 @@ namespace TSMapEditor.UI.CursorActions
             }
             else if (e.PressedKey == Microsoft.Xna.Framework.Input.Keys.Back)
             {
-                if (cliffPath.Count > 0)
-                    cliffPath.RemoveAt(cliffPath.Count - 1);
+                if (connectedTilePath.Count > 0)
+                    connectedTilePath.RemoveAt(connectedTilePath.Count - 1);
                 
                 RedrawPreview();
+
+                e.Handled = true;
+            }
+            else if (e.PressedKey == Microsoft.Xna.Framework.Input.Keys.R)
+            {
+                if (connectedTilePath.Count > 0)
+                {
+                    randomSeed = new Random().Next();
+                    RedrawPreview();
+                }
 
                 e.Handled = true;
             }
@@ -126,9 +137,9 @@ namespace TSMapEditor.UI.CursorActions
             {
                 if (!Constants.IsFlatWorld)
                 {
-                    if (cliffPath.Count > 0)
+                    if (connectedTilePath.Count > 0)
                     {
-                        if (MutationTarget.Map.GetTile(cliffPath[0]).Level + extraHeight + 1 <= Constants.MaxMapHeightLevel)
+                        if (MutationTarget.Map.GetTile(connectedTilePath[0]).Level + extraHeight + 1 <= Constants.MaxMapHeightLevel)
                             extraHeight++;
                     }
 
@@ -141,9 +152,9 @@ namespace TSMapEditor.UI.CursorActions
             {
                 if (!Constants.IsFlatWorld)
                 {
-                    if (cliffPath.Count > 0)
+                    if (connectedTilePath.Count > 0)
                     {
-                        if (MutationTarget.Map.GetTile(cliffPath[0]).Level + extraHeight - 1 >= 0)
+                        if (MutationTarget.Map.GetTile(connectedTilePath[0]).Level + extraHeight - 1 >= 0)
                             extraHeight--;
                     }
 
@@ -152,10 +163,10 @@ namespace TSMapEditor.UI.CursorActions
 
                 e.Handled = true;
             }
-            else if (e.PressedKey == Microsoft.Xna.Framework.Input.Keys.Enter && cliffPath.Count >= 2)
+            else if (e.PressedKey == Microsoft.Xna.Framework.Input.Keys.Enter && connectedTilePath.Count >= 2)
             {
                 previewMutation?.Undo();
-                CursorActionTarget.MutationManager.PerformMutation(new DrawCliffMutation(CursorActionTarget.MutationTarget, cliffPath, cliffType, cliffSide, randomSeed, extraHeight));
+                CursorActionTarget.MutationManager.PerformMutation(new DrawConnectedTilesMutation(MutationTarget, connectedTilePath, connectedTileType, connectedTileSide, randomSeed, extraHeight));
 
                 ExitAction();
 
@@ -165,7 +176,7 @@ namespace TSMapEditor.UI.CursorActions
 
         public override void LeftClick(Point2D cellCoords)
         {
-            cliffPath.Add(cellCoords);
+            connectedTilePath.Add(cellCoords);
             RedrawPreview();
         }
 
@@ -173,9 +184,9 @@ namespace TSMapEditor.UI.CursorActions
         {
             previewMutation?.Undo();
 
-            if (cliffPath.Count >= 2)
+            if (connectedTilePath.Count >= 2)
             {
-                previewMutation = new DrawCliffMutation(MutationTarget, cliffPath, cliffType, cliffSide, randomSeed, extraHeight);
+                previewMutation = new DrawConnectedTilesMutation(MutationTarget, connectedTilePath, connectedTileType, connectedTileSide, randomSeed, extraHeight);
                 previewMutation.Perform();
             }
             else

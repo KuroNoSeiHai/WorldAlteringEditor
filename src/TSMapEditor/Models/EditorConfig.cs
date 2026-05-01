@@ -30,7 +30,7 @@ namespace TSMapEditor.Models
         public List<Theater> Theaters { get; } = new List<Theater>();
         public List<BridgeType> Bridges { get; } = new List<BridgeType>();
         public List<ConnectedOverlayType> ConnectedOverlays { get; } = new List<ConnectedOverlayType>();
-        public List<CliffType> Cliffs { get; } = new List<CliffType>();
+        public List<ConnectedTileType> Cliffs { get; } = new List<ConnectedTileType>();
         public List<TeamTypeFlag> TeamTypeFlags { get; } = new List<TeamTypeFlag>();
         public EvaSpeeches Speeches { get; private set; }
 
@@ -449,7 +449,7 @@ namespace TSMapEditor.Models
             {
                 string cliffIniName = kvp.Value;
 
-                CliffType cliffType = CliffType.FromIniSection(iniFile, cliffIniName);
+                ConnectedTileType cliffType = ConnectedTileType.FromIniSection(iniFile, cliffIniName);
                 if (cliffType != null)
                     Cliffs.Add(cliffType);
             }

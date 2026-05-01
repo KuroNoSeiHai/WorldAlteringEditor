@@ -6,7 +6,7 @@ using TSMapEditor.Models;
 
 namespace TSMapEditor.UI.Windows
 {
-    public class SelectConnectedTileWindow : SelectObjectWindow<CliffType>
+    public class SelectConnectedTileWindow : SelectObjectWindow<ConnectedTileType>
     {
         public SelectConnectedTileWindow(WindowManager windowManager, Map map) : base(windowManager)
         {
@@ -29,7 +29,7 @@ namespace TSMapEditor.UI.Windows
                 return;
             }
 
-            SelectedObject = (CliffType)lbObjectList.SelectedItem.Tag;
+            SelectedObject = (ConnectedTileType)lbObjectList.SelectedItem.Tag;
         }
 
         public void Open()
@@ -41,7 +41,7 @@ namespace TSMapEditor.UI.Windows
         {
             lbObjectList.Clear();
 
-            foreach (CliffType cliff in map.EditorConfig.Cliffs.Where(cliff =>
+            foreach (ConnectedTileType cliff in map.EditorConfig.Cliffs.Where(cliff =>
                          cliff.AllowedTheaters.Exists(theaterName => theaterName.Equals(map.TheaterName, StringComparison.OrdinalIgnoreCase))))
             {
                 if (cliff.IsLegal)
