@@ -2,10 +2,14 @@
 using Rampastring.XNAUI;
 using System;
 using TSMapEditor.GameMath;
+using TSMapEditor.Models;
 using TSMapEditor.Mutations;
 
 namespace TSMapEditor.UI.CursorActions
 {
+    /// <summary>
+    /// Base class for all mutations that can paint objects either directly on cells or in a line.
+    /// </summary>
     public abstract class LineAndRegularPaintingAction : CursorAction
     {
         protected LineAndRegularPaintingAction(ICursorActionTarget cursorActionTarget) : base(cursorActionTarget)
@@ -14,7 +18,11 @@ namespace TSMapEditor.UI.CursorActions
 
         public override bool OnlyUniqueCellEvents => false;
 
-        protected virtual bool ShouldPreventInputEventsOnPreviousCell => true;
+        protected virtual bool PreventInputEventsOnPreviousCell => true;
+
+        protected virtual bool CenterCellCoordsOnBrush => false;
+
+        protected Point2D GetCenteredBrushSizeCellCoords(Point2D cellCoords) => CursorActionTarget.BrushSize.CenterWithinBrush(cellCoords);
 
         protected Point2D? LineSourceCell { get; set; }
         protected bool Blocked { get; set; }
@@ -105,7 +113,18 @@ namespace TSMapEditor.UI.CursorActions
             if (Blocked)
                 return;
 
-            var cell = CursorActionTarget.Map.GetTile(cellCoords);
+            Point2D coords = cellCoords;
+            MapTile cell;
+            if (CenterCellCoordsOnBrush)
+            {
+                coords = GetCenteredBrushSizeCellCoords(cellCoords);
+            }
+            else
+            {
+                coords = cellCoords;
+            }
+
+            cell = Map.GetTile(coords);
 
             if (KeyboardCommands.Instance.PlaceTerrainLine.AreKeysOrModifiersDown(Keyboard))
             {
@@ -118,14 +137,14 @@ namespace TSMapEditor.UI.CursorActions
                 return;
             }
 
-            if (!ShouldPreventInputEventsOnPreviousCell || PreviousCellCoords != cellCoords)
+            if (!PreventInputEventsOnPreviousCell || PreviousCellCoords != coords)
             {
-                var mutation = CreateRegularPlacementMutation(cellCoords);
+                var mutation = CreateRegularPlacementMutation(coords);
                 if (mutation.ShouldPerform())
                 {
                     CursorActionTarget.MutationManager.PerformMutation(mutation);
                 }
-                PreviousCellCoords = cellCoords;
+                PreviousCellCoords = coords;
             }
         }
 

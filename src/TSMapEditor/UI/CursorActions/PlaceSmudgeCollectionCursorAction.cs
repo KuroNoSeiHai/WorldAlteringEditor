@@ -33,8 +33,6 @@ namespace TSMapEditor.UI.CursorActions
         private List<Smudge> previewSmudges = new List<Smudge>();
         private List<Smudge> existingSmudges = new List<Smudge>();
 
-        private Point2D GetCenteredBrushSizeCellCoords(Point2D cellCoords) => CursorActionTarget.BrushSize.CenterWithinBrush(cellCoords);
-
         public override void OnActionExit()
         {
             ClearLinePreview();

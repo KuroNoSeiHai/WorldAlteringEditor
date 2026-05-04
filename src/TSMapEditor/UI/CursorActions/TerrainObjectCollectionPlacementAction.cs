@@ -14,7 +14,7 @@ namespace TSMapEditor.UI.CursorActions
 
         public override string GetName() => Translate("Name", "Place TerrainObject Collection");
 
-        protected override bool ShouldPreventInputEventsOnPreviousCell => false;
+        protected override bool PreventInputEventsOnPreviousCell => false; // Not needed, PlaceTerrainObjectCollectionMutation.ShouldPerform does the job already
 
         private TerrainObject terrainObject;
         private TerrainObjectCollection _terrainObjectCollection;

@@ -14,6 +14,10 @@ namespace TSMapEditor.UI.CursorActions
 
         public override string GetName() => Translate("Name", "Place Smudge");
 
+        protected override bool PreventInputEventsOnPreviousCell => false; // Not needed, PlaceSmudgeMutation.ShouldPerform does the job already
+
+        protected override bool CenterCellCoordsOnBrush => true;
+
         private SmudgeType _smudgeType;
         public SmudgeType SmudgeType 
         {
@@ -29,8 +33,6 @@ namespace TSMapEditor.UI.CursorActions
 
         private List<Smudge> previewSmudges = new List<Smudge>();
         private List<Smudge> existingSmudges = new List<Smudge>();
-
-        private Point2D GetCenteredBrushSizeCellCoords(Point2D cellCoords) => CursorActionTarget.BrushSize.CenterWithinBrush(cellCoords);
 
         public override void OnActionExit()
         {
@@ -117,37 +119,6 @@ namespace TSMapEditor.UI.CursorActions
             (Direction direction, int length) = GetLineInformation(cellCoords);
             var mutation = CreateLinePlacementMutation(direction, length);
             PerformMutation(mutation);
-        }
-
-        public override void LeftDown(Point2D cellCoords)
-        {
-            if (Blocked)
-                return;
-
-            Point2D centeredBrushSizeCellCoords = GetCenteredBrushSizeCellCoords(cellCoords);
-            var cell = CursorActionTarget.Map.GetTile(centeredBrushSizeCellCoords);
-
-            if (KeyboardCommands.Instance.PlaceTerrainLine.AreKeysOrModifiersDown(Keyboard))
-            {
-                if (LineSourceCell == null && cell != null)
-                {
-                    LineSourceCell = cellCoords;
-                    PreviousCellCoords = cellCoords;
-                }
-
-                return;
-            }
-
-            if (PreviousCellCoords != centeredBrushSizeCellCoords)
-            {
-                var mutation = CreateRegularPlacementMutation(centeredBrushSizeCellCoords);
-                if (mutation.ShouldPerform())
-                {
-                    CursorActionTarget.MutationManager.PerformMutation(mutation);
-                }
-
-                PreviousCellCoords = centeredBrushSizeCellCoords;
-            }
         }
     }
 }
