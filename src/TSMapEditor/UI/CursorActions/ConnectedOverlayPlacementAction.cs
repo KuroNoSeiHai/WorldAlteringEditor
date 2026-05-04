@@ -14,6 +14,8 @@ namespace TSMapEditor.UI.CursorActions
         }
 
         public override string GetName() => Translate("Name", "Place Connected Overlay");
+        protected override bool ClearPreviousCellOnMouseUp => true;
+
         public ConnectedOverlayType ConnectedOverlayType { get; set; }
         struct OriginalOverlayInfo
         {
