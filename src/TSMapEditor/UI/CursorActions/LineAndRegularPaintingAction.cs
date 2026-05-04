@@ -14,6 +14,8 @@ namespace TSMapEditor.UI.CursorActions
 
         public override bool OnlyUniqueCellEvents => false;
 
+        protected virtual bool ShouldPreventInputEventsOnPreviousCell => true;
+
         protected Point2D? LineSourceCell { get; set; }
         protected bool Blocked { get; set; }
 
@@ -116,7 +118,7 @@ namespace TSMapEditor.UI.CursorActions
                 return;
             }
 
-            if (PreviousCellCoords != cellCoords)
+            if (!ShouldPreventInputEventsOnPreviousCell || PreviousCellCoords != cellCoords)
             {
                 var mutation = CreateRegularPlacementMutation(cellCoords);
                 if (mutation.ShouldPerform())

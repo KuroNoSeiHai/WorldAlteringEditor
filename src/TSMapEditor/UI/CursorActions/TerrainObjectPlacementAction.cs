@@ -16,6 +16,8 @@ namespace TSMapEditor.UI.CursorActions
 
         public override string GetName() => Translate("Name", "Place Terrain Object");
 
+        protected override bool ShouldPreventInputEventsOnPreviousCell => false;
+
         private TerrainObject terrainObject;
 
         private TerrainType _terrainType;
