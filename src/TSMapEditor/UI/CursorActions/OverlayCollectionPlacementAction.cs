@@ -16,6 +16,8 @@ namespace TSMapEditor.UI.CursorActions
 
         public override string GetName() => Translate("Name", "Place Overlay Collection");
 
+        protected override bool ClearPreviousCellOnMouseUp => true;
+
         private OverlayCollection _overlayCollection;
         public OverlayCollection OverlayCollection
         {
