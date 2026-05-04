@@ -15,6 +15,10 @@ namespace TSMapEditor.UI.CursorActions
 
         public override string GetName() => Translate("Name", "Place Smudge Collection");
 
+        protected override bool CenterCellCoordsOnBrush => true;
+
+        protected override bool ClearPreviousCellOnMouseUp => true;
+
         private SmudgeCollection _smudgeCollection;
         public SmudgeCollection SmudgeCollection
         {
@@ -123,37 +127,6 @@ namespace TSMapEditor.UI.CursorActions
                 (Direction direction, int length) = GetLineInformation(cellCoords);
                 var mutation = CreateLinePlacementMutation(direction, length);
                 PerformMutation(mutation);
-            }
-        }
-
-        public override void LeftDown(Point2D cellCoords)
-        {
-            if (Blocked)
-                return;
-
-            Point2D centeredBrushSizeCellCoords = GetCenteredBrushSizeCellCoords(cellCoords);
-            var cell = CursorActionTarget.Map.GetTile(centeredBrushSizeCellCoords);
-
-            if (KeyboardCommands.Instance.PlaceTerrainLine.AreKeysOrModifiersDown(Keyboard))
-            {
-                if (LineSourceCell == null && cell != null)
-                {
-                    LineSourceCell = cellCoords;
-                    PreviousCellCoords = cellCoords;
-                }
-
-                return;
-            }
-
-            if (PreviousCellCoords != centeredBrushSizeCellCoords)
-            {
-                var mutation = CreateRegularPlacementMutation(centeredBrushSizeCellCoords);
-                if (mutation.ShouldPerform())
-                {
-                    CursorActionTarget.MutationManager.PerformMutation(mutation);
-                }
-
-                PreviousCellCoords = centeredBrushSizeCellCoords;
             }
         }
     }

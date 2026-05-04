@@ -22,6 +22,8 @@ namespace TSMapEditor.UI.CursorActions
 
         protected virtual bool CenterCellCoordsOnBrush => false;
 
+        protected virtual bool ClearPreviousCellOnMouseUp => false;
+
         protected Point2D GetCenteredBrushSizeCellCoords(Point2D cellCoords) => CursorActionTarget.BrushSize.CenterWithinBrush(cellCoords);
 
         protected Point2D? LineSourceCell { get; set; }
@@ -108,6 +110,19 @@ namespace TSMapEditor.UI.CursorActions
             Renderer.DrawLine(cameraPoint1.ToXNAVector(), cameraPoint2.ToXNAVector(), Color.Orange, 2);
         }
 
+        protected virtual void TryPerformRegularPlacementMutation(Point2D coords)
+        {
+            if (!PreventInputEventsOnPreviousCell || PreviousCellCoords != coords)
+            {
+                var mutation = CreateRegularPlacementMutation(coords);
+                if (mutation.ShouldPerform())
+                {
+                    CursorActionTarget.MutationManager.PerformMutation(mutation);
+                }
+                PreviousCellCoords = coords;
+            }
+        }
+
         public override void LeftDown(Point2D cellCoords)
         {
             if (Blocked)
@@ -137,15 +152,7 @@ namespace TSMapEditor.UI.CursorActions
                 return;
             }
 
-            if (!PreventInputEventsOnPreviousCell || PreviousCellCoords != coords)
-            {
-                var mutation = CreateRegularPlacementMutation(coords);
-                if (mutation.ShouldPerform())
-                {
-                    CursorActionTarget.MutationManager.PerformMutation(mutation);
-                }
-                PreviousCellCoords = coords;
-            }
+            TryPerformRegularPlacementMutation(coords);
         }
 
         public override void LeftClick(Point2D cellCoords)
@@ -176,7 +183,12 @@ namespace TSMapEditor.UI.CursorActions
             }
 
             if (!CursorActionTarget.WindowManager.Cursor.LeftDown && !CursorActionTarget.WindowManager.Cursor.LeftClicked)
+            {
                 Blocked = false;
+
+                if (ClearPreviousCellOnMouseUp)
+                    PreviousCellCoords = Point2D.NegativeOne;
+            }
         }
     }
 }
