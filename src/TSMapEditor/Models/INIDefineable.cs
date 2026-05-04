@@ -8,11 +8,22 @@ namespace TSMapEditor.Models
     [AttributeUsage(AttributeTargets.Property)]
     public class INIAttribute : Attribute
     {
-        public bool INIDefined;
+        public bool INIDefined { get; }
+
+        public bool WriteIfDefault { get; } = true;
+
+        public object DefaultValue { get; }
 
         public INIAttribute(bool iniDefined)
         {
             INIDefined = iniDefined;
+        }
+
+        public INIAttribute(bool iniDefined, bool writeIfDefault, object defaultValue)
+        {
+            INIDefined = iniDefined;
+            WriteIfDefault = writeIfDefault;
+            DefaultValue = defaultValue;
         }
     }
 
@@ -37,7 +48,19 @@ namespace TSMapEditor.Models
                 if (iniAttribute != null)
                 {
                     if (!iniAttribute.INIDefined)
+                    {
                         continue;
+                    }
+
+                    if (!iniAttribute.WriteIfDefault)
+                    {
+                        object val = property.GetValue(this, null);
+                        if ((val != null && val.Equals(iniAttribute.DefaultValue)) || (val == null && iniAttribute.DefaultValue == null))
+                        {
+                            iniSection.RemoveKey(property.Name);
+                            continue;
+                        }
+                    }
                 }
 
                 if (propertyType.IsEnum)
