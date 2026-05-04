@@ -51,16 +51,6 @@ namespace TSMapEditor.Models
                     {
                         continue;
                     }
-
-                    if (!iniAttribute.WriteIfDefault)
-                    {
-                        object val = property.GetValue(this, null);
-                        if ((val != null && val.Equals(iniAttribute.DefaultValue)) || (val == null && iniAttribute.DefaultValue == null))
-                        {
-                            iniSection.RemoveKey(property.Name);
-                            continue;
-                        }
-                    }
                 }
 
                 if (propertyType.IsEnum)
@@ -142,6 +132,16 @@ namespace TSMapEditor.Models
                 {
                     if (!iniAttribute.INIDefined)
                         continue;
+
+                    if (!iniAttribute.WriteIfDefault)
+                    {
+                        object val = property.GetValue(this, null);
+                        if ((val != null && val.Equals(iniAttribute.DefaultValue)) || (val == null && iniAttribute.DefaultValue == null))
+                        {
+                            iniSection.RemoveKey(property.Name);
+                            continue;
+                        }
+                    }
                 }
 
                 if (propertyType.IsEnum)
