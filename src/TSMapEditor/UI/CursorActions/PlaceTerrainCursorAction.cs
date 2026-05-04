@@ -284,6 +284,80 @@ namespace TSMapEditor.UI.CursorActions
             PerformMutation(mutation);
         }
 
+        /// <summary>
+        /// Checks whether filling terrain in specific cell coords is allowed.
+        /// It is not allowed if the latest mutation we have performed has achieved exactly the same effects.
+        /// </summary>
+        private bool FillTerrainPassesPreviousMutationCheck(Point2D cellCoords)
+        {
+            if (PreviousCellCoords != cellCoords)
+                return true;
+
+            var previousMutation = MutationManager.GetLatestMutation();
+            if (previousMutation is FillTerrainAreaMutation fillTerrainAreaMutation)
+            {
+                Point2D adjustedCellCoords = GetAdjustedCellCoords(cellCoords);
+                var targetCell = CursorActionTarget.Map.GetTile(adjustedCellCoords);
+
+                if (fillTerrainAreaMutation.TargetCell == targetCell && fillTerrainAreaMutation.Tile == Tile)
+                    return false;
+            }
+
+            return true;
+        }
+
+        private void TryFillTerrain(Point2D cellCoords)
+        {
+            Point2D adjustedCellCoords = GetAdjustedCellCoords(cellCoords);
+            var targetCell = CursorActionTarget.Map.GetTile(adjustedCellCoords);
+            if (targetCell == null)
+                return;
+
+            if (!FillTerrainPassesPreviousMutationCheck(cellCoords))
+                return;
+
+            var mutation = new FillTerrainAreaMutation(CursorActionTarget.MutationTarget, targetCell, Tile);
+            CursorActionTarget.MutationManager.PerformMutation(mutation);
+            PreviousCellCoords = cellCoords;
+        }
+
+        /// <summary>
+        /// Checks whether placing terrain in specific cell coords is allowed.
+        /// It is not allowed if the latest mutation we have performed has achieved exactly the same effects.
+        /// </summary>
+        private bool TerrainPlacementPassesPreviousMutationCheck(Point2D cellCoords)
+        {
+            if (PreviousCellCoords != cellCoords)
+                return true;
+
+            var previousMutation = MutationManager.GetLatestMutation();
+            if (previousMutation is PlaceTerrainTileMutation placeTerrainTileMutation)
+            {
+                Point2D adjustedCellCoords = GetAdjustedCellCoords(cellCoords);
+
+                if (placeTerrainTileMutation.TargetCellCoords == adjustedCellCoords &&
+                    placeTerrainTileMutation.Tile.TileID == Tile.TileID && // Compare TileID instead of Tile directly because tiles can be randomized if there's graphics variation
+                    placeTerrainTileMutation.HeightOffset == heightOffset &&
+                    placeTerrainTileMutation.BrushSize == MutationTarget.BrushSize)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private void TryPlaceTerrain(Point2D cellCoords)
+        {
+            if (!TerrainPlacementPassesPreviousMutationCheck(cellCoords))
+                return;
+
+            Point2D adjustedCellCoords = GetAdjustedCellCoords(cellCoords);
+            var tileMutation = new PlaceTerrainTileMutation(CursorActionTarget.MutationTarget, adjustedCellCoords, Tile, heightOffset);
+            CursorActionTarget.MutationManager.PerformMutation(tileMutation);
+            PreviousCellCoords = cellCoords;
+        }
+
         public override void LeftDown(Point2D cellCoords)
         {
             if (Tile == null)
@@ -292,41 +366,29 @@ namespace TSMapEditor.UI.CursorActions
             if (Blocked)
                 return;
 
-            Point2D adjustedCellCoords = GetAdjustedCellCoords(cellCoords);
-
             if (KeyboardCommands.Instance.PlaceTerrainLine.AreKeysOrModifiersDown(Keyboard))
             {
+                Point2D adjustedCellCoords = GetAdjustedCellCoords(cellCoords);
+
                 var targetCell = CursorActionTarget.Map.GetTile(adjustedCellCoords);
 
                 if (LineSourceCell == null && targetCell != null)
                 {
                     LineSourceCell = adjustedCellCoords;
-                    PreviousCellCoords = adjustedCellCoords;
+                    PreviousCellCoords = cellCoords;
                 }
 
                 return;
             }
 
-            if (PreviousCellCoords != cellCoords)
+            if (KeyboardCommands.Instance.FillTerrain.AreKeysOrModifiersDown(Keyboard)
+                && (Tile.Width == 1 && Tile.Height == 1))
             {
-                if (KeyboardCommands.Instance.FillTerrain.AreKeysOrModifiersDown(Keyboard)
-                    && (Tile.Width == 1 && Tile.Height == 1))
-                {
-                    var targetCell = CursorActionTarget.Map.GetTile(adjustedCellCoords);
-
-                    if (targetCell != null)
-                    {
-                        var mutation = new FillTerrainAreaMutation(CursorActionTarget.MutationTarget, targetCell, Tile);
-                        CursorActionTarget.MutationManager.PerformMutation(mutation);
-                        PreviousCellCoords = cellCoords;
-                    }
-
-                    return;
-                }
-
-                var tileMutation = new PlaceTerrainTileMutation(CursorActionTarget.MutationTarget, adjustedCellCoords, Tile, heightOffset);
-                CursorActionTarget.MutationManager.PerformMutation(tileMutation);
-                PreviousCellCoords = cellCoords;
+                TryFillTerrain(cellCoords);
+            }
+            else
+            {
+                TryPlaceTerrain(cellCoords);
             }
         }
     }

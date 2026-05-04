@@ -38,12 +38,6 @@ namespace TSMapEditor.UI.CursorActions
             return (direction, length);
         }
 
-        public override void OnActionEnter()
-        {
-            PreviousCellCoords = Point2D.Zero;
-            base.OnActionEnter();
-        }
-
         public override void InactiveUpdate()
         {
             LineSourceCell = null;

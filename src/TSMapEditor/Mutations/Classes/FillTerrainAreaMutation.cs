@@ -17,25 +17,26 @@ namespace TSMapEditor.Mutations.Classes
             if (tile.Width > 1 || tile.Height > 1)
                 throw new InvalidOperationException("Only 1x1 tiles can be used to fill areas.");
 
-            targetTile = target;
-            this.tile = tile;
+            TargetCell = target;
+            Tile = tile;
         }
 
-        private MapTile targetTile;
-        private TileImage tile;
+        public MapTile TargetCell { get; }
+        public TileImage Tile { get; }
+
         private OriginalCellTerrainData[] undoData;
 
         public override string GetDisplayString()
         {
             return string.Format(Translate(this, "DisplayString", 
                 "Flood-fill terrain tiles at {0} with tile from set '{1}'"),
-                    targetTile.CoordsToPoint(), MutationTarget.TheaterGraphics.Theater.TileSets[tile.TileSetId].SetName);
+                    TargetCell.CoordsToPoint(), MutationTarget.TheaterGraphics.Theater.TileSets[Tile.TileSetId].SetName);
         }
 
         public override void Perform()
         {
             var originalData = new List<OriginalCellTerrainData>();
-            var tilesToProcess = Helpers.GetFillAreaTiles(targetTile, MutationTarget.Map, MutationTarget.TheaterGraphics);
+            var tilesToProcess = Helpers.GetFillAreaTiles(TargetCell, MutationTarget.Map, MutationTarget.TheaterGraphics);
 
             // Process tiles
             foreach (Point2D cellCoords in tilesToProcess)
@@ -43,7 +44,7 @@ namespace TSMapEditor.Mutations.Classes
                 var cell = MutationTarget.Map.GetTile(cellCoords);
                 originalData.Add(new OriginalCellTerrainData(cellCoords, cell.TileIndex, cell.SubTileIndex, cell.Level));
 
-                cell.ChangeTileIndex(tile.TileID, 0);
+                cell.ChangeTileIndex(Tile.TileID, 0);
             }
 
             undoData = originalData.ToArray();

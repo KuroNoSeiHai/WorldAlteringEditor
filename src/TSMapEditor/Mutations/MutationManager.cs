@@ -47,6 +47,11 @@ namespace TSMapEditor.Mutations
         }
 
         /// <summary>
+        /// Returns the latest mutation performed to the map.
+        /// </summary>
+        public IMutation GetLatestMutation() => UndoList.Count > 0 ? UndoList[^1] : null;
+
+        /// <summary>
         /// Undoes the last mutation performed to the map.
         /// </summary>
         public void UndoOne()

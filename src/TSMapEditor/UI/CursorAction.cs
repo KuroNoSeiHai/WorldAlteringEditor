@@ -75,6 +75,8 @@ namespace TSMapEditor.UI
 
         protected IMutationTarget MutationTarget => CursorActionTarget.MutationTarget;
 
+        protected MutationManager MutationManager => CursorActionTarget.MutationManager;
+
         protected bool Is2DMode => CursorActionTarget.Is2DMode;
 
         protected RKeyboard Keyboard => CursorActionTarget.WindowManager.Keyboard;
