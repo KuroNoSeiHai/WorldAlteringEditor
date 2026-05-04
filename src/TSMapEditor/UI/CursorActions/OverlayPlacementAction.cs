@@ -18,6 +18,8 @@ namespace TSMapEditor.UI.CursorActions
 
         public override string GetName() => Translate("Name", "Place Overlay");
 
+        protected override bool PreventInputEventsOnPreviousCell => false; // Not needed, PlaceOverlayMutation.ShouldPerform does the job already
+
         public event EventHandler OverlayTypeChanged;
 
         private OverlayType _overlayType;
