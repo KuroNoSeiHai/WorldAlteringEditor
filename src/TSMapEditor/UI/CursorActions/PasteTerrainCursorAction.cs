@@ -41,14 +41,6 @@ namespace TSMapEditor.UI.CursorActions
             }
         }
 
-        struct OriginalSmudgeInfo
-        {
-            public Point2D CellCoords;
-            public SmudgeType SmudgeType;
-
-
-        }
-
 
         private CopiedMapData copiedMapData;
 
