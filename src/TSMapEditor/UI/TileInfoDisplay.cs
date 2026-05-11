@@ -317,7 +317,7 @@ namespace TSMapEditor.UI
 
                 textRenderer.AddTextLine(new XNATextPart(Translate(this, "HouseBaseNodesHeader", "Base Node: "), Constants.UIDefaultFont, Color.Gray));
                 textRenderer.AddTextPart(new XNATextPart(string.Format(Translate(this, "HouseBaseNodesInfo",
-                    "{0} ({1}), Owner:"), nodeBuildingType.Name, nodeBuildingType.ININame),
+                    "{0} ({1}), Owner:"), TranslateObject(nodeBuildingType.ININame, nodeBuildingType.Name), nodeBuildingType.ININame),
                     Constants.UIDefaultFont, Color.White));
                 textRenderer.AddTextPart(new XNATextPart(house.ININame, Constants.UIBoldFont, house.XNAColor));
             }
