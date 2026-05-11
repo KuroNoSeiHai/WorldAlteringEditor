@@ -28,15 +28,10 @@ namespace WAEScript
         /// </summary>
         public string GetSuccessMessage()
         {
-            if (error == null)
-                return string.Format(Translator.Translate("MapScripts.AddMapRevealTrigger.SuccessMessage",
-                    "Successfully created a map reveal trigger with name \"{0}\". You can locate it in the Triggers window."),
-                    mapRevealTriggerName);
-
-            return error;
+            return string.Format(Translator.Translate("MapScripts.AddMapRevealTrigger.SuccessMessage",
+                "Created a map reveal trigger with name \"{0}\". You can locate it in the Triggers window."),
+                mapRevealTriggerName);
         }
-
-        private string error;
 
         private string mapRevealTriggerName = Translator.Translate("MapScripts.AddMapRevealTrigger.TriggerName", "Map Reveal Trigger");
 

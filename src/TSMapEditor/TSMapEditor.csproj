@@ -27,10 +27,12 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="Config\Scripts\Activate Assign Mission Cursor Action.cs" />
+    <Compile Remove="Config\Scripts\Add Map Reveal Trigger.cs" />
     <Compile Remove="Config\Scripts\Apply Animated Water.cs" />
     <Compile Remove="Config\Scripts\Disable All Debug Triggers.cs" />
     <Compile Remove="Config\Scripts\List Unused Scripting Elements.cs" />
     <Compile Remove="Config\Scripts\Make Civilian Vehicles Sleep.cs" />
+    <Compile Remove="Config\Scripts\Randomize Interior Walls.cs" />
     <Compile Remove="Config\Scripts\Remove All Terrain Objects.cs" />
     <Compile Remove="Config\Scripts\Replace Autumn Grass With Tall Grass.cs" />
     <Compile Remove="Config\Scripts\Replace Autumn Jungle Grass With Summer Grass.cs" />
@@ -498,6 +500,9 @@
     <None Include="Config\Scripts\Activate Assign Mission Cursor Action.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Config\Scripts\Add Map Reveal Trigger.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Config\Scripts\Apply Animated Water.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -509,6 +514,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Config\Scripts\Make Civilian Vehicles Sleep.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Config\Scripts\Randomize Interior Walls.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Config\Scripts\Remove All Terrain Objects.cs">
@@ -529,11 +537,6 @@
     <None Include="Config\Scripts\Set Map Difficulty Settings.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Update="Config\Scripts\Add Map Reveal Trigger.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Compile>
   </ItemGroup>
   <Target Name="RestoreDotnetTools" BeforeTargets="Restore">
     <Message Text="Restoring dotnet tools" Importance="High" />
