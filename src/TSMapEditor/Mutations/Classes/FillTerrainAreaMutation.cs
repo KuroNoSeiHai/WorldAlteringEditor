@@ -30,7 +30,7 @@ namespace TSMapEditor.Mutations.Classes
         {
             return string.Format(Translate(this, "DisplayString", 
                 "Flood-fill terrain tiles at {0} with tile from set '{1}'"),
-                    TargetCell.CoordsToPoint(), MutationTarget.TheaterGraphics.Theater.TileSets[Tile.TileSetId].SetName);
+                    TargetCell.CoordsToPoint(), MutationTarget.TheaterGraphics.Theater.TileSets[Tile.TileSetId].TranslatedName);
         }
 
         public override void Perform()

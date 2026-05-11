@@ -128,7 +128,7 @@ namespace TSMapEditor.UI.Windows.TerrainGenerator
             if (selectTileSetWindow.SelectedObject == null)
                 openedTileSetSelector.Text = string.Empty;
             else
-                openedTileSetSelector.Text = selectTileSetWindow.SelectedObject.SetName;
+                openedTileSetSelector.Text = selectTileSetWindow.SelectedObject.TranslatedName;
         }
 
         private void SelTileSet_LeftClick(object sender, System.EventArgs e)
@@ -160,7 +160,7 @@ namespace TSMapEditor.UI.Windows.TerrainGenerator
                         EditorMessageBox.Show(WindowManager, 
                             Translate(this, "GeneratorConfigError.TileSetNotFound.Title", "Generator Config Error"),
                             string.Format(Translate(this, "GeneratorConfigError.TileSetNotFound.Description",
-                                "Tile with index '{0}' does not exist in tile set '{1}'!"), invalidElement, tileSet.SetName),
+                                "Tile with index '{0}' does not exist in tile set '{1}'!"), invalidElement, tileSet.TranslatedName),
                             MessageBoxButtons.OK);
                         return null;
                     }
@@ -182,7 +182,7 @@ namespace TSMapEditor.UI.Windows.TerrainGenerator
             {
                 var tileGroup = configuration.TileGroups[i];
 
-                tileSetSelectors[i].Text = tileGroup.TileSet.SetName;
+                tileSetSelectors[i].Text = tileGroup.TileSet.TranslatedName;
                 tileSetSelectors[i].Tag = tileGroup.TileSet;
 
                 if (tileGroup.TileIndicesInSet == null)

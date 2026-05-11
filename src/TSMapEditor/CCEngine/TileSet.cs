@@ -18,6 +18,9 @@ namespace TSMapEditor.CCEngine
         public int Index { get; }
         public string SortID { get; set; }
         public string SetName { get; set; }
+
+        [INI(false)]
+        public string TranslatedName { get; set; }
         public string FileName { get; set; }
         public int TilesInSet { get; set; }
         public bool Morphable { get; set; }
@@ -53,6 +56,7 @@ namespace TSMapEditor.CCEngine
         public void Read(IniSection iniSection)
         {
             ReadPropertiesFromIniSection(iniSection);
+            TranslatedName = Translate(this, SetName, SetName);
 
             foreach (string namepart in only1x1TileSets)
             {

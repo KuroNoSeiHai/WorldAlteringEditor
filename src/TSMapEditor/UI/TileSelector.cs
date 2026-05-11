@@ -294,7 +294,7 @@ namespace TSMapEditor.UI
                     sortedTileSets = sortedTileSets.ThenBy(ts => ts.Index);
                     break;
                 case TileSetSortMode.Name:
-                    sortedTileSets = sortedTileSets.ThenBy(ts => ts.SetName);
+                    sortedTileSets = sortedTileSets.ThenBy(ts => ts.TranslatedName);
                     break;
             }
 
@@ -307,7 +307,7 @@ namespace TSMapEditor.UI
                 {
                     lbTileSetList.AddItem(new XNAListBoxItem()
                     {
-                        Text = tileSet.SetName,
+                        Text = tileSet.TranslatedName,
                         Tag = tileSet,
                         TextColor = tileSet.Color.HasValue ? tileSet.Color.Value : UISettings.ActiveSettings.AltColor
                     });

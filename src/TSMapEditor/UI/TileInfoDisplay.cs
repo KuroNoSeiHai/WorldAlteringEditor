@@ -92,7 +92,7 @@ namespace TSMapEditor.UI
             TileImage tileGraphics = theaterGraphics.GetTileGraphics(MapTile.TileIndex);
             TileSet tileSet = theaterGraphics.Theater.TileSets[tileGraphics.TileSetId];
             textRenderer.AddTextPart(new XNATextPart(Translate(this, "TileSet", "TileSet: "), Constants.UIDefaultFont, subtleTextColor));
-            textRenderer.AddTextPart(new XNATextPart(tileSet.SetName + " (" + tileGraphics.TileSetId + ")", Constants.UIDefaultFont, baseTextColor));
+            textRenderer.AddTextPart(new XNATextPart(tileSet.TranslatedName + " (" + tileGraphics.TileSetId + ")", Constants.UIDefaultFont, baseTextColor));
             textRenderer.AddTextPart(new XNATextPart(Translate(this, "TileNumber", "Tile #: "), Constants.UIDefaultFont, subtleTextColor));
             textRenderer.AddTextPart(new XNATextPart((MapTile.TileIndex - tileSet.StartTileIndex).ToString(CultureInfo.InvariantCulture), Constants.UIDefaultFont, baseTextColor));
 

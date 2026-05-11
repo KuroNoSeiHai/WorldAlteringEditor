@@ -47,7 +47,7 @@ namespace TSMapEditor.UI.Windows
                 if (tileset.NonMarbleMadness != -1 || tileset.LoadedTileCount == 0 || !tileset.AllowToPlace)
                     continue;
 
-                lbObjectList.AddItem(new XNAListBoxItem() { Text = tileset.SetName, Tag = tileset });
+                lbObjectList.AddItem(new XNAListBoxItem() { Text = tileset.TranslatedName, Tag = tileset });
                 if (tileset == SelectedObject)
                     lbObjectList.SelectedIndex = lbObjectList.Items.Count - 1;
             }
