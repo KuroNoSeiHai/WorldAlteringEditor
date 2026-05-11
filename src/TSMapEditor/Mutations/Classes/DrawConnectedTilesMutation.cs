@@ -27,6 +27,7 @@ namespace TSMapEditor.Mutations.Classes
             this.startingSide = startingSide;
 
             this.originLevel = mutationTarget.Map.GetTile(path[0]).Level + extraHeight;
+            this.randomSeed = randomSeed;
             this.random = new Random(randomSeed);
         }
 
