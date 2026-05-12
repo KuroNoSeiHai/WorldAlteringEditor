@@ -117,6 +117,27 @@ namespace TSMapEditor.Rendering
         }
 
         /// <summary>
+        /// Checks if a condition is true for any valid sub-tile.
+        /// </summary>
+        public bool CheckForAnyValidSubTile(Func<MGTMPImage, bool> condition)
+        {
+            for (int i = 0; i < TMPImages.Length; i++)
+            {
+                MGTMPImage image = TMPImages[i];
+
+                if (image == null)
+                    continue;
+
+                if (condition(image))
+                    return true;
+            }
+
+            return false;
+        }
+
+        public bool Flat => !CheckForAnyValidSubTile(tmpImage => tmpImage.TmpImage.Height > 0);
+
+        /// <summary>
         /// Calculates and returns the width of this full tile image.
         /// </summary>
         public int GetWidth(out int outMinX)

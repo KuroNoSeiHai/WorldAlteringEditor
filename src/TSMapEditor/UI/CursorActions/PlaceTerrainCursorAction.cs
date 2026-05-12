@@ -356,6 +356,15 @@ namespace TSMapEditor.UI.CursorActions
             var tileMutation = new PlaceTerrainTileMutation(CursorActionTarget.MutationTarget, adjustedCellCoords, Tile, heightOffset);
             CursorActionTarget.MutationManager.PerformMutation(tileMutation);
             PreviousCellCoords = cellCoords;
+
+            // Changing cell height affects which cell the cursor points at on the next frame,
+            // causing users to unintentionally place many tiles with one mouse-down event when a placed tile modifies cell height.
+            // Block input for the rest of this mousedown event to prevent the issue.
+            //
+            // This prevents placing down height-modifying tiles on multiple cells by holding down and moving the mouse cursor,
+            // but that's probably rarely, if ever, intentionally done by users anyway.
+            if (!Tile.Flat)
+                Blocked = true;
         }
 
         public override void LeftDown(Point2D cellCoords)
