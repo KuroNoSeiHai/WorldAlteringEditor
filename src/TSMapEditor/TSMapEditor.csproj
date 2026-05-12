@@ -509,7 +509,9 @@
     <None Include="Config\Scripts\Count Credits On Map.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Config\Scripts\Disable All Debug Triggers.cs" />
+    <None Include="Config\Scripts\Disable All Debug Triggers.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Config\Scripts\List Unused Scripting Elements.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
