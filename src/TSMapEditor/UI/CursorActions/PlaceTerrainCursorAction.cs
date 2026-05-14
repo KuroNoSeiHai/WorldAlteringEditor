@@ -363,7 +363,7 @@ namespace TSMapEditor.UI.CursorActions
             //
             // This prevents placing down height-modifying tiles on multiple cells by holding down and moving the mouse cursor,
             // but that's probably rarely, if ever, intentionally done by users anyway.
-            if (!Tile.Flat)
+            if (!Tile.Flat || heightOffset != 0)
                 Blocked = true;
         }
 
