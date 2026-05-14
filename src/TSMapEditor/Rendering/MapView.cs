@@ -1643,8 +1643,8 @@ namespace TSMapEditor.Rendering
 
             if (isActive && tileUnderCursor != null && cursorAction != null)
             {
-                cursorAction.PostMapDraw(tileUnderCursor.CoordsToPoint());
                 cursorAction.DrawPreview(tileUnderCursor.CoordsToPoint(), Camera.TopLeftPoint);
+                cursorAction.PostMapDraw(tileUnderCursor.CoordsToPoint());
             }
         }
 

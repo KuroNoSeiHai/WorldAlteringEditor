@@ -57,6 +57,19 @@ namespace TSMapEditor.Models
 
         public List<(Structure Source, double DistanceInLeptons)> LightSources { get; set; } = new();
 
+        /// <summary>
+        /// Returns the display height level of this cell.
+        /// If the cell has a valid preview height level defined, returns the preview height level.
+        /// Otherwise returns the actual, non-preview height level.
+        /// </summary>
+        public int GetLevelOrPreviewLevel()
+        {
+            if (PreviewLevel > -1)
+                return PreviewLevel;
+
+            return Level;
+        }
+
         public void ApplyPreview(TileImage previewTileImage, int previewSubTileIndex, int previewLevel, Lighting lighting, LightingPreviewMode lightingPreviewMode, bool lightDisabledLightSources)
         {
             PreviewTileImage = previewTileImage;

@@ -47,8 +47,8 @@ namespace TSMapEditor.UI.CursorActions
                 }
             });
 
-            copiedMapData.Width = (ushort)(endX - startX);
-            copiedMapData.Height = (ushort)(endY - startY);
+            copiedMapData.Width = (ushort)((endX - startX) + 1);
+            copiedMapData.Height = (ushort)((endY - startY) + 1);
 
             // To handle height, we first look up the lowest height level of the copied
             // area. Any cell higher than that gets assigned an offset for its height.
