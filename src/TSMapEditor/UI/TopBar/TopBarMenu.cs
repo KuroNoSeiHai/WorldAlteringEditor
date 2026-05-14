@@ -62,7 +62,7 @@ namespace TSMapEditor.UI.TopBar
             checkDistanceCursorAction = new CheckDistanceCursorAction(mapUI);
             checkDistancePathfindingCursorAction = new CheckDistancePathfindingCursorAction(mapUI);
             calculateTiberiumValueCursorAction = new CalculateTiberiumValueCursorAction(mapUI);
-            manageBaseNodesCursorAction = new ManageBaseNodesCursorAction(mapUI, WindowManager);
+            manageBaseNodesCursorAction = new ManageBaseNodesCursorAction(mapUI);
             placeVeinholeMonsterCursorAction = new PlaceVeinholeMonsterCursorAction(mapUI);
 
             selectBridgeWindow = new SelectBridgeWindow(WindowManager, map);

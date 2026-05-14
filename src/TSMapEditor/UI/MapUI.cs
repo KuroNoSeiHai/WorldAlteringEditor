@@ -484,10 +484,8 @@ namespace TSMapEditor.UI
                         lastTileUnderCursor = tileUnderCursor;
                     }
                 }
-                else
-                {
-                    CursorAction.LeftUpOnMouseMove(tileUnderCursor == null ? Point2D.NegativeOne : tileUnderCursor.CoordsToPoint());
-                }
+
+                CursorAction.MouseMove(tileUnderCursor == null ? Point2D.NegativeOne : tileUnderCursor.CoordsToPoint());
             }
 
             // Right-click scrolling

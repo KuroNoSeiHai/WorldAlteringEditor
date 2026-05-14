@@ -34,6 +34,12 @@ namespace TSMapEditor.UI.CursorActions
 
         private HashSet<MapTile> previewTiles = new HashSet<MapTile>();
 
+        /// <summary>
+        /// Used to temporarily block input after the user has placed down a tile that modified terrain height.
+        /// Input is handled again once the mouse has been moved.
+        /// </summary>
+        private bool placedDownNonFlatTile = false;
+
         public override void OnActionEnter()
         {
             heightOffset = 0;
@@ -156,7 +162,7 @@ namespace TSMapEditor.UI.CursorActions
 
         private void ApplyPreviewForCells(Point2D cellCoords)
         {
-            if (Tile == null)
+            if (Tile == null || Blocked || placedDownNonFlatTile)
                 return;
 
             if (LineSourceCell.HasValue)
@@ -347,6 +353,12 @@ namespace TSMapEditor.UI.CursorActions
             return true;
         }
 
+        public override void MouseMove(Point2D cellCoords)
+        {
+            placedDownNonFlatTile = false;
+            base.MouseMove(cellCoords);
+        }
+
         private void TryPlaceTerrain(Point2D cellCoords)
         {
             if (!TerrainPlacementPassesPreviousMutationCheck(cellCoords))
@@ -364,7 +376,10 @@ namespace TSMapEditor.UI.CursorActions
             // This prevents placing down height-modifying tiles on multiple cells by holding down and moving the mouse cursor,
             // but that's probably rarely, if ever, intentionally done by users anyway.
             if (!Tile.Flat || heightOffset != 0)
+            {
                 Blocked = true;
+                placedDownNonFlatTile = true;
+            }
         }
 
         public override void LeftDown(Point2D cellCoords)

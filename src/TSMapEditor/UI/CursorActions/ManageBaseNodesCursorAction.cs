@@ -15,12 +15,9 @@ namespace TSMapEditor.UI.CursorActions
     /// </summary>
     public class ManageBaseNodesCursorAction : CursorAction
     {
-        public ManageBaseNodesCursorAction(ICursorActionTarget cursorActionTarget, WindowManager windowManager) : base(cursorActionTarget)
+        public ManageBaseNodesCursorAction(ICursorActionTarget cursorActionTarget) : base(cursorActionTarget)
         {
-            this.windowManager = windowManager;
         }
-
-        private readonly WindowManager windowManager;
 
         private BaseNode draggedBaseNode = null;
         private bool isDragging = false;
@@ -99,14 +96,14 @@ namespace TSMapEditor.UI.CursorActions
             base.LeftDown(cellCoords);
         }
 
-        public override void LeftUpOnMouseMove(Point2D cellCoords)
+        public override void MouseMove(Point2D cellCoords)
         {
-            if (isDragging && !Keyboard.IsKeyHeldDown(Microsoft.Xna.Framework.Input.Keys.M))
+            if (!CursorActionTarget.WindowManager.Cursor.LeftDown && isDragging && !Keyboard.IsKeyHeldDown(Microsoft.Xna.Framework.Input.Keys.M))
             {
                 StopBaseNodeDrag();
             }
 
-            base.LeftUpOnMouseMove(cellCoords);
+            base.MouseMove(cellCoords);
         }
 
         public override void LeftClick(Point2D cellCoords)
@@ -206,7 +203,7 @@ namespace TSMapEditor.UI.CursorActions
 
             if (overlappingNodes)
             {
-                EditorMessageBox.Show(windowManager, 
+                EditorMessageBox.Show(CursorActionTarget.WindowManager,
                     Translate("OverlappingNodesError.Title", "Error"),
                     Translate("OverlappingNodesError.Description", "The house already has one or more base nodes on the cell!"),
                     MessageBoxButtons.OK);
@@ -219,7 +216,7 @@ namespace TSMapEditor.UI.CursorActions
 
             if (mapCell.Structures[0].UpgradeCount > 0)
             {
-                var messageBox = EditorMessageBox.Show(windowManager, 
+                var messageBox = EditorMessageBox.Show(CursorActionTarget.WindowManager,
                     Translate("BaseNodeUpgrade.Title", "Create node for upgrades?"),
                     Translate("BaseNodeUpgrade.Description", "The building has one or more upgrades. Do you also want to create a base node for them?"),
                     MessageBoxButtons.YesNo);

@@ -117,10 +117,10 @@ namespace TSMapEditor.UI
         public virtual void LeftDown(Point2D cellCoords) { }
 
         /// <summary>
-        /// Called when the mouse is moved on the map with the left mouse button up while this action is active.
+        /// Called when the mouse is moved on the map while this action is active.
         /// </summary>
         /// <param name="cellCoords">The coords of the cell under the cursor.</param>
-        public virtual void LeftUpOnMouseMove(Point2D cellCoords) { }
+        public virtual void MouseMove(Point2D cellCoords) { }
 
         /// <summary>
         /// Called when the left mouse button is clicked (pressed and released) on the map with this action us active.
