@@ -29,9 +29,9 @@ namespace TSMapEditor.Models
         public List<Unit> Vehicles { get; set; } = new List<Unit>();
         public List<Aircraft> Aircraft { get; set; } = new List<Aircraft>();
         public Infantry[] Infantry { get; set; } = new Infantry[SubCellCount];
-        public TileImage PreviewTileImage { get; set; }
-        public int PreviewSubTileIndex { get; set; }
-        public int PreviewLevel { get; set; } = -1;
+        public TileImage PreviewTileImage { get; private set; }
+        public int PreviewSubTileIndex { get; private set; }
+        public int PreviewLevel { get; private set; } = -1;
 
         public Overlay Overlay { get; set; }
         public Smudge Smudge { get; set; }
@@ -56,6 +56,22 @@ namespace TSMapEditor.Models
         public MapColor CellLighting { get; set; } = new MapColor(1.0, 1.0, 1.0);
 
         public List<(Structure Source, double DistanceInLeptons)> LightSources { get; set; } = new();
+
+        public void ApplyPreview(TileImage previewTileImage, int previewSubTileIndex, int previewLevel, Lighting lighting, LightingPreviewMode lightingPreviewMode, bool lightDisabledLightSources)
+        {
+            PreviewTileImage = previewTileImage;
+            PreviewSubTileIndex = previewSubTileIndex;
+            PreviewLevel = previewLevel;
+            RefreshLighting(lighting, lightingPreviewMode, lightDisabledLightSources);
+        }
+
+        public void ClearPreview(Lighting lighting, LightingPreviewMode lightingPreviewMode, bool lightDisabledLightSources)
+        {
+            PreviewTileImage = null;
+            PreviewSubTileIndex = -1;
+            PreviewLevel = -1;
+            RefreshLighting(lighting, lightingPreviewMode, lightDisabledLightSources);
+        }
 
         public void RefreshLighting(Lighting lighting, LightingPreviewMode lightingPreviewMode, bool lightDisabledLightSources)
         {
@@ -85,7 +101,7 @@ namespace TSMapEditor.Models
             cellAmbient *= (1.0 - globalGround);
 
             // Apply Level
-            cellAmbient += globalLevel * Level;
+            cellAmbient += globalLevel * (PreviewLevel > -1 ? PreviewLevel : Level);
 
             // Check all the light sources and how they affect this light
             foreach (var source in LightSources)

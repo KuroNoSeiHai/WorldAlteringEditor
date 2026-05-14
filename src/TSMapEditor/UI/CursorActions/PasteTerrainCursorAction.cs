@@ -173,9 +173,12 @@ namespace TSMapEditor.UI.CursorActions
                 if (entry.EntryType == CopiedEntryType.Terrain)
                 {
                     var terrainEntry = entry as CopiedTerrainEntry;
-                    cell.PreviewTileImage = CursorActionTarget.TheaterGraphics.GetTileGraphics(terrainEntry.TileIndex, 0);
-                    cell.PreviewSubTileIndex = terrainEntry.SubTileIndex;
-                    cell.PreviewLevel = Math.Max(0, Math.Min(Constants.MaxMapHeightLevel, originLevel + terrainEntry.HeightOffset + originLevelOffset));
+
+                    var previewTileImage = CursorActionTarget.TheaterGraphics.GetTileGraphics(terrainEntry.TileIndex, 0);
+                    int previewSubTileIndex = terrainEntry.SubTileIndex;
+                    int previewLevel = Math.Max(0, Math.Min(Constants.MaxMapHeightLevel, originLevel + terrainEntry.HeightOffset + originLevelOffset));
+
+                    cell.ApplyPreview(previewTileImage, previewSubTileIndex, previewLevel, Map.Lighting, CursorActionTarget.LightingPreviewState, MutationTarget.LightDisabledLightSources);
                 }
                 else if (entry.EntryType == CopiedEntryType.Overlay)
                 {
@@ -235,7 +238,7 @@ namespace TSMapEditor.UI.CursorActions
                 if (cell == null)
                     continue;
 
-                cell.PreviewTileImage = null;
+                cell.ClearPreview(Map.Lighting, CursorActionTarget.LightingPreviewState, MutationTarget.LightDisabledLightSources);
             }
 
             foreach (var originalOverlayEntry in originalOverlay)

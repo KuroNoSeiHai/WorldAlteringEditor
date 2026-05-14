@@ -105,8 +105,7 @@ namespace TSMapEditor.UI.CursorActions
             // Clear preview data
             foreach (var cell in previewTiles)
             {
-                cell.PreviewTileImage = null;
-                cell.PreviewLevel = -1;
+                cell.ClearPreview(Map.Lighting, CursorActionTarget.LightingPreviewState, MutationTarget.LightDisabledLightSources);
             }
 
             if (LinePreviewMutation != null)
@@ -146,9 +145,8 @@ namespace TSMapEditor.UI.CursorActions
 
                     if (mapTile != null && (!CursorActionTarget.OnlyPaintOnClearGround || mapTile.IsClearGround()))
                     {
-                        mapTile.PreviewSubTileIndex = subTileIndex;
-                        mapTile.PreviewLevel = Math.Min(mapTile.Level + subTile.TmpImage.Height, Constants.MaxMapHeightLevel);
-                        mapTile.PreviewTileImage = Tile;
+                        int previewLevel = Math.Min(mapTile.Level + subTile.TmpImage.Height, Constants.MaxMapHeightLevel);
+                        mapTile.ApplyPreview(Tile, subTileIndex, previewLevel, Map.Lighting, CursorActionTarget.LightingPreviewState, MutationTarget.LightDisabledLightSources);
                         previewTiles.Add(mapTile);
                     }
                 });
@@ -224,9 +222,8 @@ namespace TSMapEditor.UI.CursorActions
 
                     if (mapTile != null && (!CursorActionTarget.OnlyPaintOnClearGround || mapTile.IsClearGround()))
                     {
-                        mapTile.PreviewSubTileIndex = i;
-                        mapTile.PreviewLevel = Math.Min(originLevel + Tile.GetSubTile(i).TmpImage.Height, Constants.MaxMapHeightLevel);
-                        mapTile.PreviewTileImage = Tile;
+                        int previewLevel = Math.Min(originLevel + Tile.GetSubTile(i).TmpImage.Height, Constants.MaxMapHeightLevel);
+                        mapTile.ApplyPreview(Tile, i, previewLevel, Map.Lighting, CursorActionTarget.LightingPreviewState, MutationTarget.LightDisabledLightSources);
                         previewTiles.Add(mapTile);
                     }
                 }
@@ -257,10 +254,8 @@ namespace TSMapEditor.UI.CursorActions
 
                         if (autoLatTileIndex > -1)
                         {
-                            cell.PreviewTileImage = CursorActionTarget.TheaterGraphics.GetTileGraphics(autoLatTileIndex, 0);
-                            cell.PreviewSubTileIndex = 0;
-                            if (cell.PreviewLevel < 0)
-                                cell.PreviewLevel = cell.Level;
+                            var previewTileImage = CursorActionTarget.TheaterGraphics.GetTileGraphics(autoLatTileIndex, 0);
+                            cell.ApplyPreview(previewTileImage, 0, cell.PreviewLevel > -1 ? cell.PreviewLevel : cell.Level, Map.Lighting, CursorActionTarget.LightingPreviewState, MutationTarget.LightDisabledLightSources);
                             previewTiles.Add(cell);
                         }
                     }
