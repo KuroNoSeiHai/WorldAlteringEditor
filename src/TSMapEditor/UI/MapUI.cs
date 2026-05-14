@@ -353,10 +353,21 @@ namespace TSMapEditor.UI
         {
             inputEventArgs.Handled = true;
 
-            if (Cursor.ScrollWheelValue > 0)
-                Camera.ZoomLevel += ZoomStep;
+            if (Keyboard.IsAltHeldDown())
+            {
+                int brushSizeIndex = Map.EditorConfig.BrushSizes.IndexOf(EditorState.BrushSize);
+                if (Cursor.ScrollWheelValue < 0 && brushSizeIndex < Map.EditorConfig.BrushSizes.Count - 1)
+                    EditorState.BrushSize = Map.EditorConfig.BrushSizes[brushSizeIndex + 1];
+                else if (Cursor.ScrollWheelValue > 0 && brushSizeIndex > 0)
+                    EditorState.BrushSize = Map.EditorConfig.BrushSizes[brushSizeIndex - 1];
+            }
             else
-                Camera.ZoomLevel -= ZoomStep;
+            {
+                if (Cursor.ScrollWheelValue > 0)
+                    Camera.ZoomLevel += ZoomStep;
+                else
+                    Camera.ZoomLevel -= ZoomStep;
+            }
 
             base.OnMouseScrolled(inputEventArgs);
         }
