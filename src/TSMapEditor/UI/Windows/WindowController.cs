@@ -144,7 +144,7 @@ namespace TSMapEditor.UI.Windows
             InfantryOptionsWindow = new InfantryOptionsWindow(windowParentControl.WindowManager, map, cursorActionTarget);
             Windows.Add(InfantryOptionsWindow);
 
-            AircraftOptionsWindow = new AircraftOptionsWindow(windowParentControl.WindowManager, map);
+            AircraftOptionsWindow = new AircraftOptionsWindow(windowParentControl.WindowManager, map, cursorActionTarget);
             Windows.Add(AircraftOptionsWindow);
 
             HousesWindow = new HousesWindow(windowParentControl.WindowManager, map);

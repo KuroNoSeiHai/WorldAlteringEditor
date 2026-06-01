@@ -4,7 +4,7 @@ namespace TSMapEditor
 {
     public static class Constants
     {
-        public const string ReleaseVersion = "1.8.7";
+        public const string ReleaseVersion = "1.8.8";
 
         public static int CellSizeX = 48;
         public static int CellSizeY = 24;
@@ -65,6 +65,9 @@ namespace TSMapEditor
 
         // TODO parse from Rules.ini
         public const int ConditionYellowHP = 128;
+
+        public const int VeterancyElite = 200;
+        public const int VeterancyVeteran = 100;
 
         public const int UIEmptySideSpace = 10;
         public const int UIEmptyTopSpace = 10;

@@ -34,6 +34,14 @@ namespace TSMapEditor.Rendering.ObjectRenderers
             DrawVoxelModel(gameObject, drawParams.MainVoxel,
                 gameObject.Facing, RampType.None, Color.White, true, gameObject.GetRemapColor(),
                 Constants.VoxelsAffectedByLighting, drawPoint, 0f);
+
+            if (gameObject.Veterancy > 0)
+            {
+                DrawShapeImage(gameObject, TheaterGraphics.PipTextures, TheaterGraphics.GetVeterancyFrame(gameObject.Veterancy),
+                    Color.White, false, Color.White, false, false,
+                    drawPoint + new Point2D(Constants.CellSizeX / 8, Constants.CellSizeY / 8),
+                    100.0f);
+            }
         }
     }
 }

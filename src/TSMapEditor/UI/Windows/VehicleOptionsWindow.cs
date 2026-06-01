@@ -153,18 +153,13 @@ namespace TSMapEditor.UI.Windows
             unit.Veterancy = (int)ddVeterancy.SelectedItem.Tag;
             unit.Group = tbGroup.Value;
             unit.FollowerUnit = followerSelector.Tag as Unit;
-
-            if (unit.High != chkOnBridge.Checked)
-            {
-                unit.High = chkOnBridge.Checked;
-                cursorActionTarget.AddRefreshPoint(unit.Position);
-            }
-
+            unit.High = chkOnBridge.Checked;
             unit.AutocreateNoRecruitable = chkAutocreateNoRecruitable.Checked;
             unit.AutocreateYesRecruitable = chkAutocreateYesRecruitable.Checked;
             unit.AttachedTag = (Tag)attachedTagSelector.Tag;
 
             Hide();
+            cursorActionTarget.AddRefreshPoint(unit.Position);
         }
     }
 }

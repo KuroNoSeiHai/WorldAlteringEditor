@@ -130,8 +130,6 @@ namespace TSMapEditor.UI.Windows
             infantry.Mission = ddMission.SelectedItem == null ? infantry.Mission : ddMission.SelectedItem.Text;
             infantry.Veterancy = (int)ddVeterancy.SelectedItem.Tag;
 
-            bool refresh = false;
-
             if (ddSubCell.SelectedIndex != (int)infantry.SubCell && ddSubCell.SelectedIndex >= 0 && ddSubCell.SelectedIndex < (int)SubCell.Count)
             {
                 var infantryCell = map.GetTile(infantry.Position);
@@ -139,27 +137,16 @@ namespace TSMapEditor.UI.Windows
                 {
                     infantryCell.MoveInfantryToSubCell(infantry, (SubCell)ddSubCell.SelectedIndex);
                 }
-
-                refresh = true;
             }
 
-            if (infantry.High != chkOnBridge.Checked)
-            {
-                infantry.High = chkOnBridge.Checked;
-                refresh = true;
-            }
-
-            if (refresh)
-            {
-                mapView.AddRefreshPoint(infantry.Position);
-            }
-
+            infantry.High = chkOnBridge.Checked;
             infantry.Group = tbGroup.Value;
             infantry.AutocreateNoRecruitable = chkAutocreateNoRecruitable.Checked;
             infantry.AutocreateYesRecruitable = chkAutocreateYesRecruitable.Checked;
             infantry.AttachedTag = (Tag)attachedTagSelector.Tag;
 
             Hide();
+            mapView.AddRefreshPoint(infantry.Position);
         }
     }
 }

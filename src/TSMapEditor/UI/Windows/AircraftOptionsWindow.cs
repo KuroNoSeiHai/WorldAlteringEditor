@@ -3,20 +3,23 @@ using Rampastring.XNAUI.XNAControls;
 using System;
 using System.Globalization;
 using TSMapEditor.Models;
+using TSMapEditor.Rendering;
 using TSMapEditor.UI.Controls;
 
 namespace TSMapEditor.UI.Windows
 {
     public class AircraftOptionsWindow : INItializableWindow
     {
-        public AircraftOptionsWindow(WindowManager windowManager, Map map) : base(windowManager)
+        public AircraftOptionsWindow(WindowManager windowManager, Map map, IMapView mapView) : base(windowManager)
         {
             this.map = map;
+            this.mapView = mapView;
         }
 
         public event EventHandler<TagEventArgs> TagOpened;
 
         private readonly Map map;
+        private readonly IMapView mapView;
 
         private XNATrackbar trbStrength;
         private XNALabel lblStrengthValue;
@@ -121,6 +124,7 @@ namespace TSMapEditor.UI.Windows
             aircraft.AttachedTag = (Tag)attachedTagSelector.Tag;
 
             Hide();
+            mapView.AddRefreshPoint(aircraft.Position);
         }
     }
 }

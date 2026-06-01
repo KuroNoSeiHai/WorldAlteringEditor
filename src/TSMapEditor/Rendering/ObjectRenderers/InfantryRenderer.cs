@@ -53,6 +53,14 @@ namespace TSMapEditor.Rendering.ObjectRenderers
                 gameObject.GetFrameIndex(drawParams.ShapeImage.GetFrameCount()), 
                 Color.White, true, gameObject.GetRemapColor(),
                 false, true, drawPoint);
+
+            if (gameObject.Veterancy > 0)
+            {
+                DrawShapeImage(gameObject, TheaterGraphics.PipTextures, TheaterGraphics.GetVeterancyFrame(gameObject.Veterancy),
+                    Color.White, false, Color.White, false, false,
+                    drawPoint + new Point2D(Constants.CellSizeX / 8, Constants.CellSizeY / 8),
+                    100.0f);
+            }
         }
     }
 }

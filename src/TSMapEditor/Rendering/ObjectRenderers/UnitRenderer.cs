@@ -128,6 +128,14 @@ namespace TSMapEditor.Rendering.ObjectRenderers
                         RenderTurretShape(gameObject,  drawPoint, drawParams, Constants.DepthEpsilon * ObjectDepthAdjustments.Turret);
                 }
             }
+
+            if (gameObject.Veterancy > 0)
+            {
+                DrawShapeImage(gameObject, TheaterGraphics.PipTextures, TheaterGraphics.GetVeterancyFrame(gameObject.Veterancy),
+                    Color.White, false, Color.White, false, false,
+                    drawPoint + new Point2D(Constants.CellSizeX / 4, Constants.CellSizeY / 4),
+                    100.0f);
+            }
         }
 
         private void RenderMainShape(Unit gameObject, Point2D drawPoint, CommonDrawParams drawParams, float depthAddition)
