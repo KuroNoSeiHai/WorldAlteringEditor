@@ -1832,6 +1832,11 @@ namespace TSMapEditor.Models
             return null;
         }
 
+        public bool IsCellMorphable(MapTile cell)
+        {
+            return TheaterInstance.Theater.TileSets[TheaterInstance.GetTileSetId(cell.TileIndex)].Morphable;
+        }
+
         public void Clear()
         {
             LoadedINI = null;

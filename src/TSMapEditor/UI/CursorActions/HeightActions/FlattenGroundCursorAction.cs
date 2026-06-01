@@ -45,6 +45,12 @@ namespace TSMapEditor.UI.CursorActions.HeightActions
                 return;
             }
 
+            // Don't act on non-morphable terrain
+            if (!Map.IsCellMorphable(cell))
+            {
+                return;
+            }
+
             // Check the area of the brush on whether it has any cells that do not match
             // the height of the origin cell.
 
@@ -67,6 +73,10 @@ namespace TSMapEditor.UI.CursorActions.HeightActions
 
                     if (targetCell != null && targetCell.Level != desiredHeightLevel)
                     {
+                        // Don't act on non-morphable terrain
+                        if (!Map.IsCellMorphable(cell))
+                            continue;
+
                         perform = true;
                         break;
                     }
@@ -75,12 +85,6 @@ namespace TSMapEditor.UI.CursorActions.HeightActions
 
             if (!perform)
                 return;
-
-            // Don't act on non-morphable terrain
-            if (!Map.TheaterInstance.Theater.TileSets[Map.TheaterInstance.GetTileSetId(cell.TileIndex)].Morphable)
-            {
-                return;
-            }
 
             CursorActionTarget.MutationManager.PerformMutation(new FlattenGroundMutation(MutationTarget, cellCoords, CursorActionTarget.BrushSize, desiredHeightLevel, EventID));
         }

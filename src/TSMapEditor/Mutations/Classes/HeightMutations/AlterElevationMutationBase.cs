@@ -30,7 +30,7 @@ namespace TSMapEditor.Mutations.Classes.HeightMutations
 
         protected bool IsCellMorphable(MapTile cell)
         {
-            return Map.TheaterInstance.Theater.TileSets[Map.TheaterInstance.GetTileSetId(cell.TileIndex)].Morphable;
+            return Map.IsCellMorphable(cell);
         }
 
         protected void Clear()

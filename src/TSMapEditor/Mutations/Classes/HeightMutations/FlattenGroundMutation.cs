@@ -304,12 +304,12 @@ namespace TSMapEditor.Mutations.Classes.HeightMutations
 
             Point2D otherCellCoords = cellCoords + offset1;
             var otherCell = Map.GetTile(otherCellCoords);
-            if (otherCell != null)
+            if (otherCell != null && IsCellMorphable(otherCell))
                 totalLevelDifference += otherCell.Level - cell.Level;
 
             otherCellCoords = cellCoords + offset2;
             otherCell = Map.GetTile(otherCellCoords);
-            if (otherCell != null)
+            if (otherCell != null && IsCellMorphable(otherCell))
                 totalLevelDifference += otherCell.Level - cell.Level;
 
             if (totalLevelDifference >= 3)
