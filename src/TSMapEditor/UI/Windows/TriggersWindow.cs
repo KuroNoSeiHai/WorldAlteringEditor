@@ -512,12 +512,12 @@ namespace TSMapEditor.UI.Windows
                     int waypointIdentifier = Helpers.GetWaypointNumberFromAlphabeticalString(currentParameterValue);
                     if (Cursor.ScrollWheelValue < 0 && map.Waypoints.Exists(wp => wp.Identifier == waypointIdentifier + 1))
                     {
-                        textBox.Text = Helpers.WaypointNumberToAlphabeticalString(waypointIdentifier + 1);
+                        textBox.Text = (waypointIdentifier + 1).ToString(CultureInfo.InvariantCulture);
                         EditTrigger(editedTrigger);
                     }
                     else if (Cursor.ScrollWheelValue > 0 && map.Waypoints.Exists(wp => wp.Identifier == waypointIdentifier - 1))
                     {
-                        textBox.Text = Helpers.WaypointNumberToAlphabeticalString(waypointIdentifier - 1);
+                        textBox.Text = (waypointIdentifier - 1).ToString(CultureInfo.InvariantCulture);
                         EditTrigger(editedTrigger);
                     }
                     break;
