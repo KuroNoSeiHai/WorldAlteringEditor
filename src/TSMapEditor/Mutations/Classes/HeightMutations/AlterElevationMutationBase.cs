@@ -127,6 +127,35 @@ namespace TSMapEditor.Mutations.Classes.HeightMutations
 
         protected abstract void ApplyRamps();
 
+        protected void CellHeightFix_DifferentHeightDiffsOnStraightLine(Point2D cellCoords, Point2D offset1, Point2D offset2)
+        {
+            var cell = Map.GetTile(cellCoords);
+            if (cell == null)
+                return;
+
+            if (!IsCellMorphable(cell))
+                return;
+
+            int totalLevelDifference = 0;
+
+            Point2D otherCellCoords = cellCoords + offset1;
+            var otherCell = Map.GetTile(otherCellCoords);
+            if (otherCell != null && IsCellMorphable(otherCell))
+                totalLevelDifference += otherCell.Level - cell.Level;
+
+            otherCellCoords = cellCoords + offset2;
+            otherCell = Map.GetTile(otherCellCoords);
+            if (otherCell != null && IsCellMorphable(otherCell))
+                totalLevelDifference += otherCell.Level - cell.Level;
+
+            if (totalLevelDifference >= 3)
+            {
+                AddCellToUndoData(cell.CoordsToPoint());
+                cell.ChangeTileIndex(0, 0);
+                cell.Level++;
+            }
+        }
+
         private void RefreshLighting()
         {
             for (int i = 0; i < totalProcessedCells.Count; i++)
