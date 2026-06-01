@@ -280,6 +280,10 @@ namespace TSMapEditor.UI.CursorActions
         protected override void ApplyLine(Point2D cellCoords)
         {
             var adjustedCellCoords = GetAdjustedCellCoords(cellCoords);
+
+            if (adjustedCellCoords == LineSourceCell.Value)
+                return;
+
             (Direction direction, int length) = GetLineInformation(adjustedCellCoords);
             var mutation = CreateLinePlacementMutation(direction, length);
             PerformMutation(mutation);
