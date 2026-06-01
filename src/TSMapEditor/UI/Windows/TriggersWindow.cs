@@ -2055,6 +2055,9 @@ namespace TSMapEditor.UI.Windows
                             action.Parameters[parameterIndex] = (selectTutorialLineWindow.SelectedObject.ID + 1).ToString(CultureInfo.InvariantCulture);
                         }
                         break;
+                    case TriggerParamType.Number:
+                        action.Parameters[parameterIndex] = "0";
+                        break;
                 }
             }
         }
