@@ -496,7 +496,9 @@ namespace TSMapEditor.UI
                     }
                 }
 
-                CursorAction.MouseMove(tileUnderCursor == null ? Point2D.NegativeOne : tileUnderCursor.CoordsToPoint());
+                // Re-check for null in case the cursor action exited itself on LeftDown
+                if (CursorAction != null)
+                    CursorAction.MouseMove(tileUnderCursor == null ? Point2D.NegativeOne : tileUnderCursor.CoordsToPoint());
             }
 
             // Right-click scrolling
