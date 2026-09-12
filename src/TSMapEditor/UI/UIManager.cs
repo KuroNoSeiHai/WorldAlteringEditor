@@ -575,6 +575,8 @@ class UIManager : XNAControl, IWindowParentControl
 
         ClearResources();
         WindowManager.RemoveControl(this);
+        WindowManager.SelectedControl = null;
+        GC.Collect();
 
         mapSetup.LoadTheaterGraphics(WindowManager);
     }
@@ -624,8 +626,6 @@ class UIManager : XNAControl, IWindowParentControl
         editorGraphics = null;
 
         mapUI.Clear();
-
-        GC.Collect();
     }
 
     private void OverlayPlacementAction_OverlayTypeChanged(object sender, EventArgs e)

@@ -564,6 +564,8 @@ public class MapView : IMapView, IMapScreenCropper
         MapWideOverlay.Clear();
 
         depthRenderStencilState?.Dispose();
+        depthReadStencilState?.Dispose();
+        objectRenderStencilState?.Dispose();
         shadowRenderStencilState?.Dispose();
         Map = null;
 

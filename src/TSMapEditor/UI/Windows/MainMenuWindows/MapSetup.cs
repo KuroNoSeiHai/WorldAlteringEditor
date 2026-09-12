@@ -86,6 +86,7 @@ public class MapSetup
             }
             catch (IniParseException ex)
             {
+                tutorialLines.ShutdownFSW();
                 return string.Format(Translate("MapSetup.InitializeMap.IniParseException", 
                     "The selected file does not appear to be a proper map file (INI file). Maybe it's corrupted?" +
                     Environment.NewLine + Environment.NewLine +
@@ -93,6 +94,7 @@ public class MapSetup
             }
             catch (MapLoadException ex)
             {
+                tutorialLines.ShutdownFSW();
                 return string.Format(Translate("MapSetup.InitializeMap.MapLoadException",
                     "Failed to load the selected map file." +
                     Environment.NewLine + Environment.NewLine +

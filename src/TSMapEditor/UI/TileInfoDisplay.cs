@@ -65,6 +65,13 @@ public class TileInfoDisplay : EditorPanel
         X = WindowManager.RenderResolutionX - Width;
     }
 
+    public override void Kill()
+    {
+        WindowManager.RenderResolutionChanged -= WindowManager_RenderResolutionChanged;
+        MapTile = null;
+        base.Kill();
+    }
+
     private void RefreshInfo()
     {
         textRenderer.ClearTextParts();

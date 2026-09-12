@@ -317,6 +317,29 @@ public class TreeView : EditorPanel
         ViewTop = ScrollBar.ViewTop;
     }
 
+    public override void Kill()
+    {
+        for (int i = 0; i < Categories.Count; i++)
+        {
+            var category = Categories[i];
+            if (category.Texture != null)
+            {
+                category.Texture.Dispose();
+            }
+
+            for (int n = 0; n < category.Nodes.Count; n++)
+            {
+                var node = category.Nodes[n];
+                if (node.Texture != null)
+                {
+                    node.Texture.Dispose();
+                }
+            }
+        }
+
+        base.Kill();
+    }
+
     /// <summary>
     /// Handles input from a scroll wheel.
     /// </summary>

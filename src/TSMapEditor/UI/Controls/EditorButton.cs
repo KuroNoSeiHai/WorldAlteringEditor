@@ -45,6 +45,17 @@ public class EditorButton : XNAButton
             customUISettings.ButtonHoverTertiaryBackgroundColor);
     }
 
+    public override void Kill()
+    {
+        if (ExtraTexture != null)
+        {
+            ExtraTexture.Dispose();
+            ExtraTexture = null;
+        }
+
+        base.Kill();
+    }
+
     public override void Draw(GameTime gameTime)
     {
         base.Draw(gameTime);
