@@ -89,7 +89,9 @@ public class DrawConnectedTilesCursorAction : CursorAction
                 previewPlanFailureText);
         }
 
-        DrawText(cellCoords, cameraTopLeftPoint, 60, -180, text,
+        var textSize = Renderer.MeasureString(text, Constants.UIBoldFont);
+
+        DrawText(cellCoords, cameraTopLeftPoint, 60, -(int)textSize.Y - 50, text,
             string.IsNullOrEmpty(previewPlanFailureText) ? Color.Yellow : Color.OrangeRed);
 
         Func<Point2D, Map, Point2D> getCellCenterPoint = Is2DMode ? CellMath.CellCenterPointFromCellCoords : CellMath.CellCenterPointFromCellCoords_3D;
